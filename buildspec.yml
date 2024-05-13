@@ -17,7 +17,7 @@ phases:
         --cache-from $API_REPOSITORY_URL:latest
         --tag $API_REPOSITORY_URL:$CODEBUILD_RESOLVED_SOURCE_VERSION
         -f backend/Dockerfile backend
-  post_builds:
+  post_build:
     commands:
       - docker push $API_REPOSITORY_URL --all-tags
       - >
