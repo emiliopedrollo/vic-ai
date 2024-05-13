@@ -18,6 +18,7 @@ phases:
       - docker pull $API_REPOSITORY_URL:latest || true
   build:
     commands:
+      - cd backend
       - yarn set version 4.1.1
       - yarn install
       - yarn run build
@@ -25,9 +26,10 @@ phases:
         docker build
         --cache-from $API_REPOSITORY_URL:latest
         --tag $API_REPOSITORY_URL:$GIT_HASH
-        -f backend/Dockerfile backend
+        -f Dockerfile .
   post_build:
     commands:
+      - cd $CODEBUILD_SRC_DIR
       - docker push $API_REPOSITORY_URL --all-tags
       - >
         printf '[{"name":"API","imageUri":"%s"}]'
