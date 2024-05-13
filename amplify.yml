@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        - 'yarn set version 4.1.1'
         - 'yarn install'
     build:
       commands:
