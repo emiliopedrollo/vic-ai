@@ -1,0 +1,31 @@
+version: 0.2
+
+env:
+phases:
+  pre_build:
+    commands:
+      - export API_REPOSITORY_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/backend"
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - >
+        aws ecr get-login-password --region $AWS_DEFAULT_REGION |
+        docker login --username AWS --password-stdin
+        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - docker pull $API_REPOSITORY_URL:latest || true
+  build:
+    commands:
+      - >
+        docker build
+        --cache-from $API_REPOSITORY_URL:latest
+        --tag $API_REPOSITORY_URL:$CODEBUILD_RESOLVED_SOURCE_VERSION
+        -f backend/Dockerfile backend
+  post_builds:
+    commands:
+      - docker push $API_REPOSITORY_URL --all-tags
+      - >
+        printf '[{"name":"API","imageUri":"%s"}]'
+        "$API_REPOSITORY_URL:$CODEBUILD_RESOLVED_SOURCE_VERSION" >
+        imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
+

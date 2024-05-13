@@ -1,0 +1,34 @@
+@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.border-1 {
+  border-width: 1px;
+}
+.border-x-1 {
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+.border-y-1 {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+.border-s-1 {
+  border-inline-start-width: 1px;
+}
+.border-e-1 {
+  border-inline-end-width: 1px;
+}
+.border-t-1 {
+  border-top-width: 1px;
+}
+.border-r-1 {
+  border-right-width: 1px;
+}
+.border-b-1 {
+  border-bottom-width: 1px;
+}
+.border-l-1 {
+  border-left-width: 1px;
+}
