@@ -6,7 +6,7 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs:20
+      nodejs: 20
   pre_build:
     commands:
       - export API_REPOSITORY_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/vic-ia"
