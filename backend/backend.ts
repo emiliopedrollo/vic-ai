@@ -16,7 +16,7 @@ dotenv.config()
 
 const webSocket = expressWs(express())
 const app: expressWs.Application = webSocket.app;
-const port = env.PORT || 3001
+const port = parseInt(env.PORT || '80')
 
 
 const httpsAgent = process.env['AXIOS_CA']
@@ -94,6 +94,6 @@ app.get("/", (req: Request, res: Response) => {
   console.log(aWss.clients)
 });
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`[server]: Server is running at port ${port}`);
 });

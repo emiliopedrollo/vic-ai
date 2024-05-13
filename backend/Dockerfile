@@ -3,7 +3,7 @@ FROM node:20-alpine
 ENV NODE_ENV=production
 ENV YARN_VERSION=4.1.1
 
-EXPOSE 80 3001
+EXPOSE 80
 
 WORKDIR /home/node/app
 
