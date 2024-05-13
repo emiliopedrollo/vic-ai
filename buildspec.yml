@@ -4,7 +4,8 @@ phases:
   pre_build:
     commands:
       - export API_REPOSITORY_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/vic-ia"
-      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - export GIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - echo $GIT_HASH
       - >
         aws ecr get-login-password --region $AWS_DEFAULT_REGION |
         docker login --username AWS --password-stdin
@@ -15,14 +16,14 @@ phases:
       - >
         docker build
         --cache-from $API_REPOSITORY_URL:latest
-        --tag $API_REPOSITORY_URL:$CODEBUILD_RESOLVED_SOURCE_VERSION
+        --tag $API_REPOSITORY_URL:$GIT_HASH
         -f backend/Dockerfile backend
   post_build:
     commands:
       - docker push $API_REPOSITORY_URL --all-tags
       - >
         printf '[{"name":"API","imageUri":"%s"}]'
-        "$API_REPOSITORY_URL:$CODEBUILD_RESOLVED_SOURCE_VERSION" >
+        "$API_REPOSITORY_URL:$GIT_HASH" >
         imagedefinitions.json
 artifacts:
   files:
