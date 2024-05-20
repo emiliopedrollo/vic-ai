@@ -64,27 +64,18 @@ const query = (new URLSearchParams(params)).toString()
 
 <template>
   <a class="
-              w-56 flex flex-row flex-nowrap gap-x-3
+              w-72 py-2 px-2 flex flex-row flex-nowrap gap-x-3
               rounded-lg border-solid justify-center align-center
-              dark:bg-green-700 text-green-600 dark:text-green-200
-              hover:cursor-pointer dark:hover:bg-green-700 hover:bg-white
-              border-green-500 border shadow-sm hover:shadow-md dark:shadow-none"
+              bg-[#59B834] text-white hover:cursor-pointer"
      :href="`https://${domain}/oauth/authorize?${query}`"
   >
-    <span class="icon bg-center bg-contain align-middle ms-2.5 w-10 h-10"></span>
-    <span class="
-                buttonText text-inherit text-md flex-grow
-                align-middle font-bold text-center me-2.5"
-    >Login com Cowmed</span>
+    <span class="icon bg-center bg-contain align-middle w-7 h-7 mr-2"></span>
+    <span class="text-inherit text-sm align-middle font-bold text-center">Login com Cowmed</span>
   </a>
 </template>
 
 <style scoped>
 span.icon {
-  background-image: url("/favicon.svg");
-}
-
-span.buttonText {
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  background-image: url("/cowmed-btn.svg");
 }
 </style>
