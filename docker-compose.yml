@@ -3,6 +3,7 @@ services:
     image: node:20-alpine
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+      - '${VITE_COWMED_API_URL}:host-gateway'
     environment:
       ENV: '${NODE_ENV:-development}'
       OPENAI_ORGANIZATION: '${OPENAI_ORGANIZATION}'
@@ -18,3 +19,20 @@ services:
       - './backend:/home/node/app'
       - '${AXIOS_CA}:/ca.crt'
     command: ['yarn', 'run', 'dev']
+  front:
+    image: node:20-alpine
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      ENV: '${NODE_ENV:-development}'
+      VITE_COWMED_AUTH_URL: '${VITE_COWMED_AUTH_URL}'
+      VITE_COWMED_API_URL: '${VITE_COWMED_API_URL}'
+      VITE_COWMED_OAUTH_CLIENT_ID: '${VITE_COWMED_OAUTH_CLIENT_ID}'
+      VITE_BACKEND_HOST: 'http://localhost:${PORT:-3001}'
+      VITE_WEBSOCKET_HOST: 'ws://localhost:${PORT:-3001}'
+    working_dir: '/home/node/app'
+    ports:
+      - '5173:5173'
+    volumes:
+      - './:/home/node/app'
+    command: ['yarn', 'run', 'dev', '--host']
