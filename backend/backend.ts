@@ -87,8 +87,8 @@ app.ws('/', function(ws: ws, req: Request) {
 })
 
 app.get("/", (req: Request, res: Response) => {
-  const args = process.env
-  res.send(`Express + TypeScript Server <br/> ${JSON.stringify(args)}`);
+  // const args = process.env
+  res.send(`Express + TypeScript Server`);
 
   let aWss = webSocket.getWss()
   console.log(aWss.clients)
