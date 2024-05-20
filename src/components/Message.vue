@@ -9,12 +9,23 @@ defineProps<{
 
 <template>
   <div
-    class="p-2 rounded-t-[0.6rem]"
+    class="flex mb-2 last:mb-0"
     :class="{
-      'bg-green-800': fromVic, 'align-self-start': fromVic, 'rounded-br-[0.6rem]': fromVic,
-      'bg-blue-800': !fromVic, 'align-self-end': !fromVic, 'rounded-bl-[0.6rem]': !fromVic,
+       'align-self-start': fromVic,
+       'align-self-end': !fromVic,
     }"
-  >{{ text }}</div>
+  >
+    <img v-if="fromVic" src="\vic.svg" alt="VIC" class="me-1.5"/>
+    <div
+      class="p-4 rounded-t-[8px] text-base"
+      :class="{
+        'bg-[#DEF1F9]': fromVic,  'text-[#4D4D4D]': fromVic,  'rounded-br-[8px]': fromVic,
+        'bg-[#D6EDD4]': !fromVic, 'text-[#333333]': !fromVic, 'rounded-bl-[8px]': !fromVic,
+      }"
+    >
+      {{ text }}
+    </div>
+  </div>
 </template>
 
 <style scoped>

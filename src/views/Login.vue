@@ -22,7 +22,7 @@ import LoginButton from '@/components/LoginButton.vue'
 <!--          </h1>-->
 <!--        </header>-->
       </div>
-      <div class="text-center px-16 md:px-16 dark:bg-zinc-800
+      <div class="text-center px-16 md:px-16 dark:bg-zinc-800 bg-[#FFFFFF]
          flex-column justify-space-around max-xl:flex-grow
          place-items-center flex flex-col">
         <div class="dark:text-neutral-50 text-gray-500">

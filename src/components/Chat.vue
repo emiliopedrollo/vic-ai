@@ -11,6 +11,7 @@ const store = useMainStore()
 const state = ref<string>('ready')
 const message = ref<string>('')
 const inputMessage = ref<HTMLInputElement|null>(null)
+const chatArea = ref<HTMLElement|null>(null)
 const oauth = useOAuthStore()
 let socket: WebSocket;
 function setupWebSocket() {
@@ -54,6 +55,11 @@ function setupWebSocket() {
           'text': data.text
         }]
         state.value = 'ready'
+        setTimeout(() => {
+          chatArea.value.children[chatArea.value.children.length-1]
+            .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+        },200)
+
         break;
     }
   })
@@ -78,16 +84,22 @@ interface Message {
 }
 
 const messages = ref<Message[]>([
-  {
-    'fromVic': true,
-    'text': 'Olâ, Sou a Vic. Pergunte-me qualquer coisa vaca.'
-  }, {
-    'fromVic': false,
-    'text': 'Vaca?'
-  }, {
-    'fromVic': true,
-    'text': 'Sua mãe!'
-  }
+  // {
+  //   'fromVic': false,
+  //   'text': 'Quantas vacas de até dois anos que tenho na enfermaria'
+  // }, {
+  //   'fromVic': true,
+  //   'text': 'No momento 18 vacas com até dois anos estão na sua enfermaria'
+  // }, {
+  //   'fromVic': false,
+  //   'text': 'Quantas em estado grave?'
+  // }, {
+  //   'fromVic': true,
+  //   'text': 'No momento 5 vacas com até dois anos estão nem estado grave'
+  // }, {
+  //   'fromVic': false,
+  //   'text': 'Quanto está a ruminação delas?'
+  // }
 ])
 
 function test(event: any) {
@@ -102,6 +114,10 @@ function test(event: any) {
     type: 'message',
     message: message.value
   }))
+  setTimeout(() => {
+    chatArea.value.children[chatArea.value.children.length-1]
+      .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+  },200)
   inputMessage.value?.focus()
   message.value = ''
 }
@@ -109,37 +125,46 @@ function test(event: any) {
 </script>
 
 <template>
-  <div class="w-full px-2 flex flex-col max-h-screen min-h-0 flex-grow">
-    <div class="
-          dark:bg-neutral-800 bg-neutral-300 text-white rounded-lg
-          mb-2 px-3 py-4 flex flex-col align-content-space-around gap-3
+  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow">
+    <div ref="chatArea" class="
+          text-white
+          mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3
           overflow-y-auto flex-grow
         ">
       <Message v-for="(message, index) in messages" :from-vic="message.fromVic" :text="message.text" :key="index" />
+      <div v-if="messages.length === 0">
+        <img src="\hello.svg"/>
+      </div>
     </div>
-    <form @submit.prevent="test" class="flex align-content-space-between gap-2 ">
+    <div class="
+      dark:text-neutral-50 text-[#808080] font-bold ps-3 pb-1
+    ">
+      <span class="transition-opacity" :class="{'opacity-0': state !== 'processing'}">Vic está digitando...</span>
+    </div>
+    <form @submit.prevent="test" class="
+      flex align-content-space-between gap-2
+      p-4 dark:bg-[#333333] bg-[#FFFFFF]
+    ">
 
       <input type="text"
              ref="inputMessage"
              :autofocus="true"
-             class="px-3 rounded-lg flex-grow dark:bg-white bg-neutral-200 min-w-1"
-             :class="{
-                'text-gray-500': state !== 'ready',
-                'text-black': state === 'ready'
-             }"
+             class="px-3 flex-grow min-w-1 dark:text-white focus:outline-none focus:border-none"
              :readonly="state !== 'ready'"
-             placeholder="Escreva aqui..."
+             placeholder="Escreva sua mensagem aqui"
              v-model="message"
              @keyup.enter="test"
       >
       <input type="submit" value="Enviar" class="
-            px-4 py-3 border-solid  rounded-lg border-1
-            text-green-950 font-bold cursor-pointer
+            px-4 py-3 rounded-[8px] cursor-pointer
           " :class="{
-            'bg-gray-400': state !== 'ready',
-            'border-gray-400': state !== 'ready',
-            'bg-green-500': state === 'ready',
-            'border-green-500': state === 'ready',
+            'bg-[#F2F2F2]': state !== 'ready',
+            'dark:bg-[#999999]': state !== 'ready',
+            '!text-[#808080]': state !== 'ready',
+            'dark:!text-[#F2F2F2]': state !== 'ready',
+            'dark:!text-white': state === 'ready',
+            'bg-[#59B834]': state === 'ready',
+            '!text-white': state === 'ready',
           }" :disabled="state !== 'ready'"
       />
     </form>
