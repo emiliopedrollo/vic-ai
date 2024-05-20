@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import GlitchText from '@/components/GlitchText.vue'
+import Loading from '@/components/Loading.vue'
 
 </script>
 
@@ -12,11 +12,7 @@ import GlitchText from '@/components/GlitchText.vue'
         <Suspense>
           <component :is="Component"></component>
           <template #fallback>
-            <div class="h-screen flex justify-center items-center">
-              <div class="text-green-500 text-5xl -mt-14">
-                <GlitchText text="Carregando"/>
-              </div>
-            </div>
+            <Loading/>
           </template>
         </Suspense>
       </KeepAlive>
