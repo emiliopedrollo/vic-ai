@@ -14,6 +14,15 @@ const inputMessage = ref<HTMLInputElement|null>(null)
 const chatArea = ref<HTMLElement|null>(null)
 const oauth = useOAuthStore()
 let socket: WebSocket;
+
+function scrollToBottom() {
+  setTimeout(() => {
+    if (!chatArea.value) return
+    chatArea.value.children[chatArea.value.children.length-1]
+      .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+  },200)
+}
+
 function setupWebSocket() {
 
   const sendPing = (socket: WebSocket): number => {
@@ -55,10 +64,7 @@ function setupWebSocket() {
           'text': data.text
         }]
         state.value = 'ready'
-        setTimeout(() => {
-          chatArea.value.children[chatArea.value.children.length-1]
-            .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
-        },200)
+        scrollToBottom()
 
         break;
     }
@@ -114,10 +120,7 @@ function test(event: any) {
     type: 'message',
     message: message.value
   }))
-  setTimeout(() => {
-    chatArea.value.children[chatArea.value.children.length-1]
-      .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
-  },200)
+  scrollToBottom()
   inputMessage.value?.focus()
   message.value = ''
 }
