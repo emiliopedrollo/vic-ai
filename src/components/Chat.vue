@@ -172,12 +172,14 @@ function send(event: any) {
       <Message v-for="(message, index) in messages" :from-vic="message.fromVic" :text="message.text" :key="index" />
       <div v-if="messages.length === 0" class="h-full">
         <div class="flex flex-col h-full justify-center">
-          <img class="h-[100px]" src="\hello.svg"/>
-          <div class="self-center text-2xl mt-12">Como posso te ajudar?</div>
+          <div class="self-center bg-[#FFFFFF] dark:bg-[#4D4D4D] rounded-full w-[100px] h-[100px] text-center">
+            <img class="h-[100px] inline-block" src="\hello.svg"/>
+          </div>
+          <div class="self-center text-2xl mt-12 text-[#666666] dark:text-white">Como posso te ajudar?</div>
           <div class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">
-            <div v-for="n in 4" class="w-1/3 text-center">
+            <div v-for="n in 4" class="w-1/3 text-center text-[#808080] dark:text-white">
               <div class="
-                w-full inline-block text-start p-7 dark:bg-[#999999] rounded-[16px] cursor-pointer
+                w-full inline-block text-start p-7 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer
               " v-on:click="startChatWithText(suggestions[n-1].text)">
                 <span class="font-500 text-base" v-html="suggestions[n-1].html"></span>
               </div>
