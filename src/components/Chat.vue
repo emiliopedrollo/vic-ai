@@ -89,6 +89,30 @@ interface Message {
   text: string
 }
 
+const suggestions = ref<{html: string, text:string}[]>([
+    {
+      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
+        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
+      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+    },{
+      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
+        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
+      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+    },{
+      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
+        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
+      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+    },{
+      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
+        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
+      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+    },
+]
+  .map(value => ({ value, sort: Math.random() }))
+  .sort((a, b) => a.sort - b.sort)
+  .map(({ value }) => value)
+)
+
 const messages = ref<Message[]>([
   // {
   //   'fromVic': false,
@@ -108,21 +132,32 @@ const messages = ref<Message[]>([
   // }
 ])
 
-function test(event: any) {
-  if (message.value.trim() === '') return
-
+function process(text: string|null = null)
+{
+  text = text || message.value
   state.value = 'processing'
   messages.value = [...messages.value, {
     'fromVic': false,
-    'text': message.value
+    'text': text
   }]
   socket.send(JSON.stringify({
     type: 'message',
-    message: message.value
+    message: text
   }))
   scrollToBottom()
   inputMessage.value?.focus()
   message.value = ''
+}
+
+function startChatWithText(message: string) {
+  console.log(message)
+  process(message)
+}
+
+function send(event: any) {
+  console.log(event)
+  if (message.value.trim() === '') return
+  process()
 }
 
 </script>
@@ -135,8 +170,20 @@ function test(event: any) {
           overflow-y-auto flex-grow
         ">
       <Message v-for="(message, index) in messages" :from-vic="message.fromVic" :text="message.text" :key="index" />
-      <div v-if="messages.length === 0">
-        <img src="\hello.svg"/>
+      <div v-if="messages.length === 0" class="h-full">
+        <div class="flex flex-col h-full justify-center">
+          <img class="h-[100px]" src="\hello.svg"/>
+          <div class="self-center text-2xl mt-12">Como posso te ajudar?</div>
+          <div class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">
+            <div v-for="n in 4" class="w-1/3 text-center">
+              <div class="
+                w-full inline-block text-start p-7 dark:bg-[#999999] rounded-[16px] cursor-pointer
+              " v-on:click="startChatWithText(suggestions[n-1].text)">
+                <span class="font-500 text-base" v-html="suggestions[n-1].html"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="
@@ -144,7 +191,7 @@ function test(event: any) {
     ">
       <span class="transition-opacity" :class="{'opacity-0': state !== 'processing'}">Vic está digitando...</span>
     </div>
-    <form @submit.prevent="test" class="
+    <form @submit.prevent="send" class="
       flex align-content-space-between gap-2
       p-4 dark:bg-[#333333] bg-[#FFFFFF]
     ">
@@ -156,7 +203,7 @@ function test(event: any) {
              :readonly="state !== 'ready'"
              placeholder="Escreva sua mensagem aqui"
              v-model="message"
-             @keyup.enter="test"
+             @keyup.enter="send"
       >
       <input type="submit" value="Enviar" class="
             px-4 py-3 rounded-[8px] cursor-pointer
