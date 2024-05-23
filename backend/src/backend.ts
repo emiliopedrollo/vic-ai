@@ -5,11 +5,13 @@ import { env } from 'node:process';
 import axios from 'axios'
 import * as https from 'https'
 import * as fs from 'fs'
-import type { UserInfo } from './user-info'
+import type { UserInfo } from '#/user-info'
 // @ts-ignore
 import expressWs from "express-ws";
 // @ts-ignore
 import * as ws from "ws";
+// import { Chat } from './chat'
+import { Chat } from '#/chat'
 
 
 dotenv.config()
@@ -34,6 +36,8 @@ app.ws('/', function(ws: ws, req: Request) {
 
   let userInfo: UserInfo
 
+  let chat: Chat
+
   const closeConnection = (ws: ws, timeout: number = 30000): NodeJS.Timeout => setTimeout(() => ws.close(),timeout)
   let connectionCloseTimeout: NodeJS.Timeout = closeConnection(ws)
   const refreshTimeout = (ws: ws, timeout: number = 30000): void => {
@@ -41,9 +45,9 @@ app.ws('/', function(ws: ws, req: Request) {
     connectionCloseTimeout = closeConnection(ws, timeout);
   }
 
-  ws.on('message', function (msg: any) {
+  ws.on('message', async function (msg: any) {
     const data = JSON.parse(msg)
-    console.log(data)
+    // console.log(data)
 
     refreshTimeout(ws)
 
@@ -67,13 +71,25 @@ app.ws('/', function(ws: ws, req: Request) {
       }
       break;
       case 'message': {
+
+        if (chat == null) {
+          console.log('chat is null')
+          chat = new Chat
+        } else {
+          console.log('chat isn\'t null')
+        }
+
+        chat.send(data.message).then((response) => {
+          console.log('SENT: ', response)
+        })
+
         setTimeout(() => {
 
           ws.send(JSON.stringify({
             type: 'response',
             text: `Parrot says to ${userInfo.name}: ${data.message}`
           }))
-        }, 2000)
+        }, 200)
         break;
       }
       case 'ping':
@@ -91,7 +107,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send(`Express + TypeScript Server`);
 
   let aWss = webSocket.getWss()
-  console.log(aWss.clients)
+  // console.log(aWss.clients)
 });
 
 app.listen(port, '0.0.0.0', () => {

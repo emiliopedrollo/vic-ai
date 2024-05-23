@@ -1,4 +1,3 @@
-/// <reference types="user-info" />
 export interface UserInfo {
   uuid: string,
   name: string,

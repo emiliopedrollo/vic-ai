@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useMainStore } from '@/stores/main'
 import Message from '@/components/Message.vue'
-import OpenAI from 'openai'
 import { ref } from 'vue'
 import { useOAuthStore } from '@/stores/oauth'
 
@@ -71,17 +70,6 @@ function setupWebSocket() {
   })
 }
 setupWebSocket()
-
-
-// const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
-// const OPENAI_ORGANIZATION = import.meta.env.VITE_OPENAI_ORGANIZATION
-//
-//
-// const openai = new OpenAI({
-//   apiKey: OPENAI_API_KEY,
-//   organization: OPENAI_ORGANIZATION,
-//   dangerouslyAllowBrowser: true
-// })
 
 interface Message {
   uuid?: string,
