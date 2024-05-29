@@ -1,8 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    NODE_ENV: production
 phases:
   install:
     runtime-versions:
@@ -20,7 +17,7 @@ phases:
     commands:
       - set -e
       - cd backend
-      - yarn install
+      - yarn install --immutable
       - yarn list --pattern tsconfig
       - yarn why tsconfig-paths
       - yarn run build
