@@ -2,12 +2,26 @@
 import FarmSelect from '@/components/FarmSelect.vue'
 import { useMainStore } from '@/stores/main'
 import { ref } from 'vue'
-import router from '@/router'
-import Message from '@/components/Message.vue'
 import Chat from '@/components/Chat.vue'
+import { useChatStore } from '@/stores/chat'
+// import { updateConnection } from '../../backend/src/dynamo'
 
 const store = useMainStore()
+
+let chatList = ref<{ id: string, resume: string }[]>(
+  store.activeFarm ? useChatStore(store.activeFarm.slug).getChatData() : []
+)
+
+const chatStore = ref(store.activeFarm ? useChatStore(store.activeFarm.slug) : null)
+
+if (chatStore.value) {
+  chatStore.value.$subscribe(() => updateChatList())
+}
+
+const childChat = ref<typeof Chat>()
+const currentChatId = ref<string | null>(null)
 // store.$reset()
+
 
 // const activeFarm: Ref<Farm|null> = ref(store.activeFarm)
 // console.log(store.activeFarm, store.activeFarm?.slug)
@@ -15,12 +29,47 @@ const store = useMainStore()
 
 // const farm = ref(null)
 
+const updateChatList = () => {
+  chatList.value = chatStore.value?.getChatData() || []
+}
+
 store.$subscribe((mutation, state) => {
-  // console.log('AAAA',mutation, state)
-})
+  const farm_slug = JSON.parse(state.farmData || '{}')?.slug
+  chatStore.value = useChatStore(farm_slug)
+  updateChatList()
+  chatStore.value.$subscribe(() => updateChatList())
+  // console.log('AAAA',chatList.value)
+}, { flush: 'sync' })
 
 function changeFarm() {
+  childChat.value?.disconnect()
+  chatList.value = []
   store.setFarm(null)
+}
+
+function selectChat(chat_id: string) {
+  const entry = chatList.value.find((item) => item.id === chat_id)
+  currentChatId.value = entry?.id || null
+  if (entry) childChat.value?.loadChat(chat_id)
+}
+
+function deleteChat(chat_id: string) {
+  const entry = chatList.value.find((item) => item.id === chat_id)
+  if (entry && window.confirm(`Você tem certeza que quer deletar a conversa "${entry.resume}"?`)) {
+    childChat.value?.removeChat(chat_id)
+    if (currentChatId.value === chat_id) {
+      currentChatId.value = null
+    }
+  }
+}
+
+function newChat() {
+  childChat.value?.newChat()
+  currentChatId.value = null
+}
+
+function updateCurrentChatId(id: string | null) {
+  currentChatId.value = id
 }
 
 // function logout() {
@@ -34,11 +83,11 @@ function changeFarm() {
     <FarmSelect v-if="store.activeFarm === null" />
     <div v-else class="flex flex-row h-screen">
 
-      <div class="flex flex-col w-60 md:min-w-60">
+      <div class="flex flex-col w-72 md:min-w-72">
         <div class="
             dark:bg-[#808080] bg-[#FFFFFF]
             dark:text-neutral-50 text-[#666666]
-            text-sm px-2.5 py-3 font-bold
+            text-sm px-2.5 py-5 font-bold
           ">
           <h1>
             Vic IA 2.0
@@ -51,15 +100,52 @@ function changeFarm() {
             grow flex flex-col justify-between
           ">
           <div>
-            <h2 class="text-2xl font-bold mb-3">Chats</h2>
-            <p class="text-sm">Recentes</p>
+            <div class="flex justify-space-between align-center  mb-3">
+              <h2 class="text-2xl font-bold">Chats</h2>
+              <span v-on:click="newChat()" class="
+                bg-[#59B834] dark:!text-white !text-white rounded-[8px] px-2 py-1
+                cursor-pointer select-none
+              ">Novo chat</span>
+            </div>
+            <div v-if="Array.from(chatList).length > 0">
+              <p class="text-sm">Recentes</p>
+              <div class="">
+                <div v-for="chat in chatList" class="
+                  rounded-[8px] cursor-pointer mt-2
+                  group flex align-center justify-space-between select-none
+                " :class="{
+                  'dark:bg-[#8F8F8F]': chat.id === currentChatId,
+                  'dark:bg-[#808080]': chat.id !== currentChatId,
+                  'bg-[#FFFFFF]': chat.id === currentChatId,
+                  'bg-[#FAFAFA]': chat.id !== currentChatId
+                }">
+                  <div v-on:click="selectChat(chat.id)" class="
+                    px-3 py-2 rounded-[8px] group-hover:rounded-e-[0px]
+                    text-ellipsis text-no-wrap overflow-hidden grow
+                  ">
+                    {{ chat.resume }}
+                  </div>
+                  <span v-on:click="deleteChat(chat.id)" class="
+                    min-w-5 justify-self-end px-1.5
+                    hidden group-hover:inline-block
+                    top-0 text-[#BF2939] dark:!text-[#FFFFFF]
+                  ">
+                  <svg class="w-5 h-5 inline-block align-middle ">
+                    <use xlink:href="\trash.svg#trash" href="\trash.svg#trash" />
+                  </svg>
+                </span>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              Você ainda não tem nenhuma conversa
+            </div>
           </div>
           <div>
             <a class="text-[#BF2939] dark:text-white" href="/logout">
-              <svg class="w-6 h-5 inline-block align-middle mr-1" >
-                <use xlink:href="\exit.svg#exit" href="\exit.svg#exit"/>
+              <svg class="w-6 h-5 inline-block align-middle mr-1">
+                <use xlink:href="\exit.svg#exit" href="\exit.svg#exit" />
               </svg>
-<!--              <img class="w-5 align-sub mr-1.5 inline-block" src="/exit.svg" alt="exit"/>-->
               <span class="font-bold">Sair</span>
             </a>
           </div>
@@ -72,34 +158,11 @@ function changeFarm() {
             font-bold px-2.5 py-2.5 cursor-pointer inline-block
           ">
             {{ store.activeFarm?.name }}
-            <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm"/>
+            <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
           </div>
         </div>
-        <Chat/>
+        <Chat ref="childChat" :farm="store.activeFarm" :chat_id="currentChatId" @change-chat-id="updateCurrentChatId" />
       </div>
-
-
-<!--      <div class="flex flex-nowrap align-middle place-items-center justify-space-around mb-2">-->
-<!--        <div class="flex-1 mx-4 text-center">{{ store.activeFarm?.name }}</div>-->
-<!--        <div v-on:click="changeFarm()" class="-->
-<!--          flex-1-->
-<!--          text-button border-1 border-solid rounded border-green-900-->
-<!--          mx-4 py-1 px-4 text-center cursor-pointer-->
-<!--        "> Alterar Fazenda-->
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div class="flex flex-row justify-center">-->
-<!--        <a-->
-<!--          href="/logout"-->
-<!--          class="-->
-<!--        w-3/5 m-auto my-3-->
-<!--        text-button border-1 border-solid border-green-500 rounded-->
-<!--        text-center cursor-pointer-->
-<!--      ">Sair</a>-->
-<!--      </div>-->
-
-
-
     </div>
   </main>
 </template>

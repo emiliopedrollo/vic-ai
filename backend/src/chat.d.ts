@@ -1,11 +1,8 @@
 import { Message } from './message'
-
-interface SendFunction {
-  (message: string): Promise<any>
-}
+import { ChatSendOutput } from './chat'
 
 export interface Chat {
   uuid: string,
   messages: Message[],
-  send: SendFunction,
+  send: { (message: string): Promise<ChatSendOutput> },
 }

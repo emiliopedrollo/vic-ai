@@ -1,11 +1,11 @@
 {
   "name": "backend",
-  "main": "src/backend.js",
+  "main": "src/app.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/backend.js",
-    "dev": "nodemon src/backend.ts"
+    "start": "node dist/app.js",
+    "dev": "nodemon src/app.ts"
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
@@ -13,16 +13,19 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.583.0",
     "@types/express": "^4.17.21",
     "@types/express-ws": "^3.0.4",
     "@types/node": "^20.12.12",
     "@types/ws": "^8",
+    "async-mutex": "^0.5.0",
     "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-ws": "^5.0.2",
     "openai": "^4.47.1",
     "ts-node": "^10.9.2",
+    "uuidv7": "^1.0.0",
     "ws": "^8.17.0"
   }
 }

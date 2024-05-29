@@ -7,10 +7,10 @@ EXPOSE 80
 
 WORKDIR /home/node/app
 
-COPY dist/backend.js /home/node/app/backend.js
+COPY dist/ /home/node/app/
 COPY package.json /home/node/app/package.json
 
 RUN yarn set version $YARN_VERSION
 RUN yarn install
 
-CMD ["yarn","node","backend.js"]
+CMD ["yarn","node","app.js"]

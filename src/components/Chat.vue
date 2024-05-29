@@ -3,6 +3,9 @@ import { useMainStore } from '@/stores/main'
 import Message from '@/components/Message.vue'
 import { ref } from 'vue'
 import { useOAuthStore } from '@/stores/oauth'
+import { useChatStore } from '@/stores/chat'
+import type { Farm } from '@/Interfaces/farm'
+import { Socket } from '@/Socket'
 
 const store = useMainStore()
 // store.$reset()
@@ -11,8 +14,63 @@ const state = ref<string>('ready')
 const message = ref<string>('')
 const inputMessage = ref<HTMLInputElement|null>(null)
 const chatArea = ref<HTMLElement|null>(null)
+const chatId = ref<string|null>(null)
 const oauth = useOAuthStore()
-let socket: WebSocket;
+let socket: Socket;
+
+const props = defineProps<{
+  farm: Farm | undefined,
+  chat_id: string | null,
+}>()
+
+const emit = defineEmits<{
+  (e: 'changeChatId', id: string|null): void
+}>()
+
+const updateChatId = (new_id: string|null): void => {
+  chatId.value = new_id
+  emit('changeChatId', new_id)
+}
+
+const removeChat = (chat_id: string) => {
+  socket.deleteChat(chat_id)
+  if (chat_id === chatId.value) {
+    messages.value = []
+    updateChatId(null)
+  }
+}
+
+const loadChat = async (chat_id: string) => {
+  if (chat_id !== chatId.value) {
+    messages.value = await socket.loadChat(chat_id)
+    updateChatId(chat_id)
+  }
+}
+
+const newChat = async () => {
+  messages.value = []
+  updateChatId(null)
+  inputMessage.value?.focus()
+}
+
+const getChatId = () => {
+  return chatId.value
+}
+
+const disconnect = () => {
+  socket?.disconnect()
+}
+
+defineExpose({
+  removeChat,
+  loadChat,
+  newChat,
+  getChatId,
+  disconnect,
+})
+
+const chats = props.farm ? useChatStore(props.farm?.slug) : null
+
 
 function scrollToBottom() {
   setTimeout(() => {
@@ -24,57 +82,47 @@ function scrollToBottom() {
 
 function setupWebSocket() {
 
-  const sendPing = (socket: WebSocket): number => {
-      socket.send(JSON.stringify({type: 'ping'}))
-      return window.setTimeout(() => pingTimeoutId = sendPing(socket), 25000)
-  }
-  let pingTimeoutId: number
-
-  socket = new WebSocket(import.meta.env.VITE_WEBSOCKET_HOST)
-
-  socket.addEventListener('open', () => {
-    socket.send(JSON.stringify({
-      type: 'auth',
-      token: oauth.accessToken
-    }))
-    pingTimeoutId = sendPing(socket)
+  socket = new Socket({
+    getAuthToken: async () => oauth.accessToken,
+    getCurrentFarm: () => props.farm?.slug || '',
+    handleAuth: (id, success, chatsData) => {
+      chats?.setChatData(chatsData)
+      state.value = (success) ? 'ready' : 'error'
+    },
+    handleResponse: (chat_id: string, text: string) => {
+      updateChatId(chat_id)
+      messages.value = [...messages.value, {
+        'role': 'assistant',
+        'content': text
+      }]
+      state.value = 'ready'
+      scrollToBottom()
+    },
+    handleUpdateChats: (chatsData) => {
+      chats?.setChatData(chatsData)
+      if (chatId.value && !chatsData?.find(item => item.id === chatId.value)) {
+        updateChatId(null)
+        messages.value = []
+      }
+    },
+    handleUnexpectedClose: () => {
+      setTimeout(setupWebSocket, 5000);
+    }
   })
 
-  socket.addEventListener('close', () => {
-    clearTimeout(pingTimeoutId)
-    console.log('ws close')
-    setTimeout(setupWebSocket, 5000);
-  })
 
   // socket.addEventListener('error', () => {
   //   console.log('ws error')
   //   setupWebSocket()
   // })
 
-  socket.addEventListener('message', function(event) {
-    const data = JSON.parse(event.data)
-    switch (data.type) {
-      case 'auth':
-        state.value = (data.success) ? 'ready' : 'error'
-        break;
-      case 'response':
-        messages.value = [...messages.value, {
-          'fromVic': true,
-          'text': data.text
-        }]
-        state.value = 'ready'
-        scrollToBottom()
-
-        break;
-    }
-  })
 }
 setupWebSocket()
 
-interface Message {
+export interface Message {
   uuid?: string,
-  fromVic: boolean,
-  text: string
+  role: "user" | "assistant",
+  content: string
 }
 
 const suggestions = ref<{html: string, text:string}[]>([
@@ -91,9 +139,9 @@ const suggestions = ref<{html: string, text:string}[]>([
         '<span class="text-sm">dos indicadores alternados do rebanho</span>',
       text: 'Me mostre a influência dos indicadores alternados de rebanho'
     },{
-      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
-        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
-      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+      html: '<span class="font-bold text-base">Olá, qual seu nome?</span></br>' +
+        '<span class="text-sm">E em que você pode me ajudar?</span>',
+      text: 'Olá, qual seu nome? e em que você pode me ajudar?'
     },
 ]
   .map(value => ({ value, sort: Math.random() }))
@@ -101,21 +149,26 @@ const suggestions = ref<{html: string, text:string}[]>([
   .map(({ value }) => value)
 )
 
+// const chats = ref<{
+//   id: string,
+//   resume: string
+// }[]>([])
+
 const messages = ref<Message[]>([
   // {
-  //   'fromVic': false,
+  //   'role': 'user',
   //   'text': 'Quantas vacas de até dois anos que tenho na enfermaria'
   // }, {
-  //   'fromVic': true,
+  //   'role': 'assistant',
   //   'text': 'No momento 18 vacas com até dois anos estão na sua enfermaria'
   // }, {
-  //   'fromVic': false,
+  //   'role': 'user',
   //   'text': 'Quantas em estado grave?'
   // }, {
-  //   'fromVic': true,
+  //   'role': 'assistant',
   //   'text': 'No momento 5 vacas com até dois anos estão nem estado grave'
   // }, {
-  //   'fromVic': false,
+  //   'role': 'user',
   //   'text': 'Quanto está a ruminação delas?'
   // }
 ])
@@ -125,25 +178,22 @@ function process(text: string|null = null)
   text = text || message.value
   state.value = 'processing'
   messages.value = [...messages.value, {
-    'fromVic': false,
-    'text': text
+    'role': 'user',
+    'content': text
   }]
-  socket.send(JSON.stringify({
-    type: 'message',
-    message: text
-  }))
+  socket.sendMessage(chatId.value, text)
   scrollToBottom()
   inputMessage.value?.focus()
   message.value = ''
 }
 
 function startChatWithText(message: string) {
-  console.log(message)
+  // console.log(message)
   process(message)
 }
 
 function send(event: any) {
-  console.log(event)
+  // console.log(event)
   if (message.value.trim() === '') return
   process()
 }
@@ -157,8 +207,8 @@ function send(event: any) {
           mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3
           overflow-y-auto flex-grow
         ">
-      <Message v-for="(message, index) in messages" :from-vic="message.fromVic" :text="message.text" :key="index" />
-      <div v-if="messages.length === 0" class="h-full">
+      <Message v-for="(message, index) in messages" :role="message.role" :content="message.content" :key="index" />
+      <div v-if="Array.from(messages).length === 0" class="h-full">
         <div class="flex flex-col h-full justify-center">
           <div class="self-center bg-[#FFFFFF] dark:bg-[#4D4D4D] rounded-full w-[100px] h-[100px] text-center">
             <img class="h-[100px] inline-block" src="\hello.svg"/>
@@ -185,7 +235,6 @@ function send(event: any) {
       flex align-content-space-between gap-2
       p-4 dark:bg-[#333333] bg-[#FFFFFF]
     ">
-
       <input type="text"
              ref="inputMessage"
              :autofocus="true"
@@ -193,7 +242,6 @@ function send(event: any) {
              :readonly="state !== 'ready'"
              placeholder="Escreva sua mensagem aqui"
              v-model="message"
-             @keyup.enter="send"
       >
       <input type="submit" value="Enviar" class="
             px-4 py-3 rounded-[8px] cursor-pointer

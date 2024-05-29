@@ -1,36 +1,46 @@
-import { computed, type ComputedRef, type Ref } from 'vue'
+import { type Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useLocalStorage } from '@vueuse/core'
-import type { Farm } from '@/Interfaces/farm'
-import type { User } from '@/Interfaces/user'
 
 
-export const useChatStore = defineStore('vic', () => {
+export function useChatStore(farm: string) {
+  return defineStore(`chats-${farm}`, () => {
 
-  const chatCompiledData: Ref<string|null> = useLocalStorage(`vue/main/chat-data`, null)
+    // const chatCompiledData: Ref<string|null> = useLocalStorage(`vue/main/chat-data`, null)
 
-  const chatData: ComputedRef<Farm|null> = computed((): Farm|null => {
-    return chatCompiledData.value !== null
-      ? JSON.parse(chatCompiledData.value)
-      : null
-  })
+    const chatData: Ref<string> = useLocalStorage(`vue/chat/chat-data/${farm}`, '[]')
 
-  function $reset() {
-    chatCompiledData.value = null
-  }
+    // const chatData: ComputedRef<any|null> = computed((): any|null => {
+    //   return chatCompiledData.value !== null
+    //     ? JSON.parse(chatCompiledData.value)
+    //     : null
+    // })
 
-  function setChatData(data: object) {
-    if (data !== null) {
-      chatCompiledData.value = JSON.stringify(data)
-    } else {
-      chatCompiledData.value = null
+    function $reset() {
+      chatData.value = '[]'
     }
-  }
 
-  return {
-    $reset,
-    chatCompiledData,
-    chatData,
-    setChatData,
-  }
-})
+    function getChatData(): {id: string, resume: string}[] {
+      return JSON.parse(chatData.value)
+    }
+
+    function setChatData(data: {id: string, resume: string}[]|null) {
+      if (data !== null) {
+        chatData.value = JSON.stringify(data.reverse())
+      } else {
+        chatData.value = '[]'
+      }
+    }
+    function addChatData(data: {id: string, resume: string}) {
+      chatData.value = JSON.stringify([...(JSON.parse(chatData.value)), data])
+    }
+
+    return {
+      $reset,
+      chatData,
+      getChatData,
+      setChatData,
+      addChatData,
+    }
+  })()
+}

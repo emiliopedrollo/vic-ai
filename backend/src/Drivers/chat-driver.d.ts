@@ -1,5 +1,5 @@
-import { SendFunction } from '#/chat'
-
 export interface ChatDriver{
-  send: SendFunction
+  send: { (message: string): Promise<ChatSendOutput> }
+  summarize: { (message: string): Promise<ChatSendOutput> }
+  getMessages: { (): Promise<Message[]> }
 }

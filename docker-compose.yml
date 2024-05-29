@@ -9,9 +9,12 @@ services:
       OPENAI_ORGANIZATION: '${OPENAI_ORGANIZATION}'
       OPENAI_API_KEY: '${OPENAI_API_KEY}'
       COWMED_API_URL: '${COWMED_API_URL}'
+      DYNAMODB_ENDPOINT: '${DYNAMODB_ENDPOINT:-http://dynamodb:8000}'
       YARN_VERSION: '4.1.1'
       AXIOS_CA: '/ca.crt'
       PORT: '3001'
+      AWS_ACCESS_KEY_ID: '${AWS_ACCESS_KEY_ID}'
+      AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
     working_dir: '/home/node/app'
     ports:
       - '${PORT:-3001}:3001'
@@ -19,6 +22,8 @@ services:
       - './backend:/home/node/app'
       - '${AXIOS_CA}:/ca.crt'
     command: ['yarn', 'run', 'dev']
+    depends_on:
+      - dynamodb
   front:
     image: node:20-alpine
     extra_hosts:
@@ -28,11 +33,26 @@ services:
       VITE_COWMED_AUTH_URL: '${VITE_COWMED_AUTH_URL}'
       VITE_COWMED_API_URL: '${VITE_COWMED_API_URL}'
       VITE_COWMED_OAUTH_CLIENT_ID: '${VITE_COWMED_OAUTH_CLIENT_ID}'
-      VITE_BACKEND_HOST: 'http://localhost:${PORT:-3001}'
-      VITE_WEBSOCKET_HOST: 'ws://localhost:${PORT:-3001}'
+      VITE_BACKEND_HOST: 'http://127.0.0.1:${PORT:-3001}'
+      VITE_WEBSOCKET_HOST: 'ws://127.0.0.1:${PORT:-3001}'
     working_dir: '/home/node/app'
     ports:
       - '5173:5173'
     volumes:
       - './:/home/node/app'
     command: ['yarn', 'run', 'dev', '--host']
+    depends_on:
+      - back
+  dynamodb:
+    image: "amazon/dynamodb-local:latest"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    container_name: vic-dynamodb
+    volumes:
+      - "./docker/dynamodb/data:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+    ports:
+      - "7998:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -d '{}' -sSf -m 3 --user 'A:A' --aws-sigv4 'aws:amz:sa-east-1:dynamodb' -H 'X-Amz-Target: DynamoDB_20120810.ListTables' -o /dev/null 127.0.0.1:8000"]
+      retries: 3
+      timeout: 2s
