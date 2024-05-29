@@ -9,7 +9,7 @@ import * as fs from 'fs'
 import expressWs from "express-ws";
 // @ts-ignore
 import * as ws from "ws";
-import { Chat, driverType } from '#/chat'
+import { Chat, driverType, getDriverTypeFromString } from '#/chat'
 import { setupEnv } from '#/setup'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
@@ -35,7 +35,7 @@ const httpsAgent = process.env['AXIOS_CA']
 
 export class App {
 
-  public defaultDriver: driverType = "parrot"
+  public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_DRIVER"]) || "chatgpt"
 
   protected webSocket: expressWs.Instance = expressWs(express())
   protected app: expressWs.Application = this.webSocket.app
