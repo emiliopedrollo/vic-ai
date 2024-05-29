@@ -35,7 +35,7 @@ const httpsAgent = process.env['AXIOS_CA']
 
 export class App {
 
-  public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_DRIVER"]) || "chatgpt"
+  public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_BACKEND"]) || "chatgpt"
 
   protected webSocket: expressWs.Instance = expressWs(express())
   protected app: expressWs.Application = this.webSocket.app
