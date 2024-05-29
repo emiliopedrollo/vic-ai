@@ -18,8 +18,11 @@ phases:
       - docker pull $API_REPOSITORY_URL:latest || true
   build:
     commands:
+      - set -e
       - cd backend
       - yarn install
+      - yarn list --pattern tsconfig
+      - yarn why tsconfig-paths
       - yarn run build
       - >
         docker build
