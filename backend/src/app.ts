@@ -14,7 +14,7 @@ import { setupEnv } from '#/setup'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   getChat,
-  getChatEntry,
+  getChatEntry, getConfirmationEntry,
   getConnectionData,
   getDynamoDBClient,
   getOrCreateUserEntry,
@@ -54,7 +54,7 @@ export class App {
   }
 
   protected initWebSocket = () => {
-    this.app.ws('/', (ws: ws, req: Request) => {
+    this.app.ws('/', (ws: ws, /* req: Request */) => {
 
       // let userInfo: UserInfo
 
@@ -68,7 +68,7 @@ export class App {
       }
 
       ws.on('message', async (msg: any) => {
-        let req = JSON.parse(msg)
+        let req: Package = JSON.parse(msg)
 
         refreshTimeout(ws)
 
@@ -141,18 +141,22 @@ export class App {
               service: this.getAuthenticatedServices(auth, req.farm)
             }))
 
-            chat?.send(req.data.message).then((output) => {
+            const metadata =
+              JSON.parse(req.data.metadata || '{}') as Record<string, string>
+
+            chat?.send(req.data.message, metadata).then((output) => {
               ws.send(JSON.stringify({
                 type: 'response',
                 chat_id: chat.chat_id,
-                text: output.response
+                text: output.response,
+                metadata: output.metadata,
               }))
             })
 
             break;
           }
           case 'delete-chat': {
-            let { user, auth } = await getConnectionData(req.id)
+            let { user, /* auth */} = await getConnectionData(req.id)
             let entry = user.chats.find(item => item.id === req.data.chat_id)
             if (entry) {
               user.chats.splice(user.chats.indexOf(entry),1)
@@ -181,8 +185,21 @@ export class App {
             ws.send(JSON.stringify({
               type: 'chat_history',
               requester: req.data.requester,
-              messages: await chat?.getMessages() || []
+              data: await chat?.getMessages() || []
             }))
+            break;
+          }
+          case 'request-confirmation': {
+            let { user, /* auth */ } = await getConnectionData(req.id)
+
+            const confirmation = await getConfirmationEntry(req.data.confirmation_id, user.id)
+
+            ws.send(JSON.stringify({
+              type: 'confirmation',
+              requester: req.data.requester,
+              data: confirmation
+            }))
+
             break;
           }
           case 'ping': {
@@ -202,7 +219,7 @@ export class App {
       // const args = process.env
       res.send(`Express + TypeScript Server`);
 
-      let aWss = this.webSocket.getWss()
+      // let aWss = this.webSocket.getWss()
       // console.log(aWss.clients)
     });
 
@@ -228,4 +245,65 @@ export class App {
   }
 }
 
+// noinspection JSUnusedLocalSymbols
 const app: App = new App()
+
+interface AuthPackage {
+  type: "auth"
+  farm: string
+  token?: string
+  data?: {
+    token?: string
+  }
+}
+
+interface MessagePackage {
+  id: string
+  type: "message"
+  farm: string
+  data: {
+    chat_id?: string|null
+    message: string
+    metadata?: string
+  }
+}
+
+interface DeleteChatPackage {
+  id: string
+  type: "delete-chat"
+  farm: string
+  data: {
+    chat_id: string
+  }
+}
+
+interface RequestChatPackage {
+  id: string
+  type: "request-chat"
+  farm: string
+  data: {
+    chat_id: string
+    requester: string
+  }
+}
+interface RequestConfirmationPackage {
+  id: string
+  type: "request-confirmation"
+  farm: string
+  data: {
+    confirmation_id: string
+    requester: string
+  }
+}
+
+interface PingPackage {
+  type: "ping"
+}
+
+type Package =
+  AuthPackage |
+  MessagePackage |
+  DeleteChatPackage |
+  RequestChatPackage |
+  RequestConfirmationPackage |
+  PingPackage

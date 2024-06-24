@@ -4,7 +4,7 @@ import { Message } from '#/message'
 import { Threads } from 'openai/resources/beta'
 import RunStatus = Threads.RunStatus
 
-export class ParrotChat implements ChatDriver
+export class TitanChat implements ChatDriver
 {
   private readonly chat: Chat
 

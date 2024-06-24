@@ -16,6 +16,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@babel/runtime": "^7.24.6",
+    "@uivjs/vue-markdown-preview": "^1.0.5",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
     "date-fns": "^3.4.0",

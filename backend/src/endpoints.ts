@@ -13,9 +13,16 @@ export async function request (options: {
 }) {
 
   const url: string = `https://${process.env['COWMED_API_URL']}/` + (() => {
+
+    const prefix = `api/farm/${options.params?.farm}`
+
     switch(options.endpoint) {
+
       case 'user-info': return `api/user-info`
-      case 'farm-info': return `api/farm/${options.params?.farm}`
+      case 'farm-info': return `${prefix}`
+      case 'list-batches': return `${prefix}/batch/datatable`
+      case 'list-infirmary': return `${prefix}/event/datatable/health/group`
+      case 'list-heats': return `${prefix}/event/datatable/reproduction/heat`
     }
     throw "endpoint not defined"
   })()

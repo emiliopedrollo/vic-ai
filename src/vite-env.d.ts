@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly BASE_URL: string
+  readonly VITE_LOG_VERBOSITY: string
   readonly VITE_COWMED_AUTH_URL: string
   readonly VITE_COWMED_API_URL: string
   readonly VITE_COWMED_OAUTH_CLIENT_ID: string

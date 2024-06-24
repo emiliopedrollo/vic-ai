@@ -3,9 +3,16 @@ import { type Message } from '#/message'
 import { ChatDriver } from '#/Drivers/chat-driver'
 import { OpenAiChat } from '#/Drivers/openai'
 import { ParrotChat } from '#/Drivers/parrot'
-import { updateChatEntry } from '#/dynamo'
+import {
+  updateChatEntry,
+} from '#/dynamo'
 import { App } from '#/app'
 import { ServiceFactory } from '#/Services/factory'
+import { Threads } from 'openai/resources/beta'
+import RunStatus = Threads.RunStatus
+import { SpecialistFactory } from '#/Specialists/factory'
+import { GeminiChat } from '#/Drivers/gemini'
+import { TitanChat } from '#/Drivers/titan'
 
 
 export type driverType = 'chatgpt' | 'titan' | 'gemini' | 'parrot'
@@ -26,26 +33,27 @@ export function getDriverTypeFromString(driver?: string): driverType|undefined
 
 export interface ChatSendOutput {
   response: string,
-  data?: any
+  metadata?: any
 }
 
 export interface ChatOptions {
+  user_id: string,
   driver?: driverType,
-  user_id?: string,
   chat_id?: string,
-  service?: ServiceFactory,
+  service: ServiceFactory,
   context?: any,
 }
 
 export class Chat implements ChatDef {
   public app: App
 
+  public user_id: string
   public chat_id?: string
-  public user_id?: string
   public context?: any
 
   private driver: ChatDriver
-  public service?: ServiceFactory
+  public service: ServiceFactory
+  public specialist: SpecialistFactory
   public driverType: driverType = 'chatgpt'
 
   updateContext = async (context: any) => {
@@ -65,6 +73,10 @@ export class Chat implements ChatDef {
         return new OpenAiChat(this)
       case 'parrot':
         return new ParrotChat(this)
+      case 'gemini':
+        return new GeminiChat(this)
+      case 'titan':
+        return new TitanChat(this)
       default:
         throw 'This driver isn\'t implemented yet'
     }
@@ -77,6 +89,7 @@ export class Chat implements ChatDef {
     this.user_id = options.user_id
     this.context = options.context
     this.service = options.service
+    this.specialist = new SpecialistFactory(this.service)
     this.driver  = this.getDriver()
   }
 
@@ -84,11 +97,11 @@ export class Chat implements ChatDef {
     return this.driver.summarize(message)
   }
 
-  send = async (message: string): Promise<ChatSendOutput> => {
-    return this.driver.send(message)
+  send = async (message: string, metadata?: Record<string, string>): Promise<ChatSendOutput> => {
+    return this.driver.send(message, metadata)
   }
 
-  getMessages = async (): Promise<Message[]> => {
+  getMessages = async (): Promise<{status: RunStatus, messages: Message[]}> => {
     return this.driver.getMessages()
   }
 }

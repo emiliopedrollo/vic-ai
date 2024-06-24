@@ -8,6 +8,7 @@ services:
       ENV: '${NODE_ENV:-development}'
       OPENAI_ORGANIZATION: '${OPENAI_ORGANIZATION}'
       OPENAI_API_KEY: '${OPENAI_API_KEY}'
+      OPENAI_ASSISTANT: '${OPENAI_ASSISTANT}'
       COWMED_API_URL: '${COWMED_API_URL}'
       LLM_BACKEND: '${LLM_BACKEND}'
       DYNAMODB_ENDPOINT: '${DYNAMODB_ENDPOINT:-http://dynamodb:8000}'
@@ -31,6 +32,7 @@ services:
       - 'host.docker.internal:host-gateway'
     environment:
       ENV: '${NODE_ENV:-development}'
+      VITE_LOG_VERBOSITY: '${VITE_LOG_VERBOSITY}'
       VITE_COWMED_AUTH_URL: '${VITE_COWMED_AUTH_URL}'
       VITE_COWMED_API_URL: '${VITE_COWMED_API_URL}'
       VITE_COWMED_OAUTH_CLIENT_ID: '${VITE_COWMED_OAUTH_CLIENT_ID}'

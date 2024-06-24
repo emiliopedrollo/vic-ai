@@ -6,6 +6,8 @@ import { useOAuthStore } from '@/stores/oauth'
 import { useChatStore } from '@/stores/chat'
 import type { Farm } from '@/Interfaces/farm'
 import { Socket } from '@/Socket'
+import { debug, group, groupEnd, info, log } from '@/logger'
+import Confirmation, { type ConfirmationStatus, type ConfirmationTypes } from '@/components/Confirmation.vue'
 
 const store = useMainStore()
 // store.$reset()
@@ -16,6 +18,7 @@ const inputMessage = ref<HTMLInputElement|null>(null)
 const chatArea = ref<HTMLElement|null>(null)
 const chatId = ref<string|null>(null)
 const oauth = useOAuthStore()
+const confirmationUpdate = ref<number>(0)
 let socket: Socket;
 
 const props = defineProps<{
@@ -26,6 +29,24 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'changeChatId', id: string|null): void
 }>()
+
+const loadConfirmations = async () => {
+  return Promise.all(
+    messages.value
+      .map(message =>
+        message.metadata?.confirmation
+          ? loadConfirmation(message.metadata?.confirmation)
+          : null
+      ).filter(promise => promise !== null)
+  )
+}
+
+const loadConfirmation = async (confirmation_id: string): Promise<void> => {
+  let confirmation = await socket.loadConfirmation(confirmation_id)
+  log("Confirmation loaded:", confirmation)
+  confirmations.value[confirmation_id] = confirmation
+  confirmationUpdate.value++
+}
 
 const updateChatId = (new_id: string|null): void => {
   chatId.value = new_id
@@ -42,8 +63,26 @@ const removeChat = (chat_id: string) => {
 
 const loadChat = async (chat_id: string) => {
   if (chat_id !== chatId.value) {
-    messages.value = await socket.loadChat(chat_id)
+    const {
+      status,
+      messages: chat_messages
+    }  = await socket.loadChat(chat_id)
+
+    group('Load Chat')
+    chat_messages.forEach((entry) => info(entry))
+    groupEnd()
+
+    // table(chat_messages.map((entry) => ({
+    //   role: entry.role,
+    //   content: entry.content,
+    //   metadata: JSON.stringify(entry.metadata)
+    // })))
+    state.value = "loading"
+    messages.value = chat_messages
     updateChatId(chat_id)
+    await loadConfirmations()
+    scrollToBottom("instant", 0)
+    state.value = ["completed","expired","incomplete"].includes(status) ? "ready" : "processing"
   }
 }
 
@@ -72,12 +111,15 @@ defineExpose({
 const chats = props.farm ? useChatStore(props.farm?.slug) : null
 
 
-function scrollToBottom() {
+function scrollToBottom(
+  behavior: "auto" | "instant" | "smooth" = "smooth",
+  delay: number = 200
+) {
   setTimeout(() => {
     if (!chatArea.value) return
     chatArea.value.children[chatArea.value.children.length-1]
-      .scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
-  },200)
+      .scrollIntoView({ behavior, block: "end", inline: "nearest" })
+  }, delay)
 }
 
 function setupWebSocket() {
@@ -89,16 +131,22 @@ function setupWebSocket() {
       chats?.setChatData(chatsData)
       state.value = (success) ? 'ready' : 'error'
     },
-    handleResponse: (chat_id: string, text: string) => {
-      updateChatId(chat_id)
-      messages.value = [...messages.value, {
-        'role': 'assistant',
-        'content': text
-      }]
-      state.value = 'ready'
-      scrollToBottom()
+    handleResponse: (chat_id: string, text: string, metadata?: Record<string, string>|null ) => {
+      debug("RESPONSE", text, metadata)
+      if (chatId.value === null || (chatId.value  === chat_id)) {
+        updateChatId(chat_id)
+        messages.value = [...messages.value, {
+          'role': 'assistant',
+          'content': text,
+          'metadata': metadata,
+        }]
+        loadConfirmations()
+        state.value = 'ready'
+        scrollToBottom()
+      }
     },
     handleUpdateChats: (chatsData) => {
+      debug("UPDATE CHATS", chatsData)
       chats?.setChatData(chatsData)
       if (chatId.value && !chatsData?.find(item => item.id === chatId.value)) {
         updateChatId(null)
@@ -122,7 +170,14 @@ setupWebSocket()
 export interface Message {
   uuid?: string,
   role: "user" | "assistant",
-  content: string
+  content: string,
+  metadata?: Record<string, string>|null
+}
+
+export interface Confirmation {
+  id: string,
+  details: Record<ConfirmationTypes, { args: Record<string,string>, extra: Record<string,string> }[]>,
+  status: ConfirmationStatus
 }
 
 const suggestions = ref<{html: string, text:string}[]>([
@@ -154,6 +209,8 @@ const suggestions = ref<{html: string, text:string}[]>([
 //   resume: string
 // }[]>([])
 
+const confirmations = ref<Record<string, Confirmation>>({})
+
 const messages = ref<Message[]>([
   // {
   //   'role': 'user',
@@ -173,29 +230,41 @@ const messages = ref<Message[]>([
   // }
 ])
 
-function process(text: string|null = null)
+function process(text: string|null = null, metadata?: Record<string, string>)
 {
   text = text || message.value
   state.value = 'processing'
   messages.value = [...messages.value, {
     'role': 'user',
-    'content': text
+    'content': text,
+    'metadata': metadata
   }]
-  socket.sendMessage(chatId.value, text)
+  socket.sendMessage(chatId.value, text, metadata)
   scrollToBottom()
   inputMessage.value?.focus()
   message.value = ''
 }
 
 function startChatWithText(message: string) {
-  // console.log(message)
   process(message)
 }
 
-function send(event: any) {
-  // console.log(event)
+function send() {
   if (message.value.trim() === '') return
   process()
+}
+
+function confirmRequest(confirmation_id: string) {
+  info("Send confirmation:", confirmation_id)
+  process("Confirmar", {
+    confirm: confirmation_id,
+  })
+}
+function rejectRequest(confirmation_id: string) {
+  info("Send confirmation rejection:", confirmation_id)
+  process("Cancelar", {
+    reject: confirmation_id,
+  })
 }
 
 </script>
@@ -206,12 +275,21 @@ function send(event: any) {
           text-white
           mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3
           overflow-y-auto flex-grow
-        ">
-      <Message v-for="(message, index) in messages" :role="message.role" :content="message.content" :key="index" />
+        " :class='{"opacity-0": state === "loading"}'>
+      <div v-for="(message, index) in messages" class="flex flex-col">
+        <Message :role="message.role" :content="message.content" :key="index" />
+        <Confirmation
+            v-if="message.metadata && message.metadata['confirmation']"
+            @confirm="confirmRequest"
+            @reject="rejectRequest"
+            :ready="state === 'ready'"
+            v-model="confirmations[message?.metadata['confirmation']]"
+        />
+      </div>
       <div v-if="Array.from(messages).length === 0" class="h-full">
         <div class="flex flex-col h-full justify-center">
           <div class="self-center bg-[#FFFFFF] dark:bg-[#4D4D4D] rounded-full w-[100px] h-[100px] text-center">
-            <img class="h-[100px] inline-block" src="\hello.svg"/>
+            <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello"/>
           </div>
           <div class="self-center text-2xl mt-12 text-[#666666] dark:text-white">Como posso te ajudar?</div>
           <div class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">

@@ -2,6 +2,8 @@ import {
   DeleteItemCommand,
   DynamoDBClient,
   DynamoDBClientConfig,
+  GetItemCommand,
+  GetItemCommandOutput,
   PutItemCommand,
   QueryCommand,
   QueryCommandOutput,
@@ -9,10 +11,11 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import dotenv from 'dotenv'
 import { UserInfo } from '#/user-info'
-import { AttributeValueUpdate } from '@aws-sdk/client-dynamodb/dist-types/models/models_0'
+import { AttributeValue, AttributeValueUpdate } from '@aws-sdk/client-dynamodb/dist-types/models/models_0'
 import { Chat, driverType, getDriverTypeFromString } from '#/chat'
 import { App } from '#/app'
 import { ServiceFactory } from '#/Services/factory'
+import deepmerge from 'deepmerge'
 
 dotenv.config()
 
@@ -43,7 +46,7 @@ export function getDynamoDBClient(): DynamoDBClient {
 
 }
 
-interface UserEntry {
+export interface UserEntry {
   id: string
   name: string,
   chats: Array<{
@@ -53,12 +56,23 @@ interface UserEntry {
   }>
 }
 
-interface ChatEntry {
+export interface ChatEntry {
   user_id: string,
   chat_id: string,
   context: any
   farm?: string,
   driver?: driverType,
+}
+
+export type ConfirmationStatus = 'pending' | 'confirmed' | 'canceled' | 'rejected'
+
+export interface ConfirmationEntry {
+  id: string,
+  user_id: string,
+  status: ConfirmationStatus,
+  details: {
+    prepare_animal_store?: object
+  }
 }
 
 export async function putChatEntry(data: {
@@ -151,14 +165,14 @@ export async function getChat(app: App, options: {
   user_id: string
   chat_id: string
   service: ServiceFactory
-}): Promise<Chat|null> {
-  return getChatEntry(options.user_id, options.chat_id).then((entry: ChatEntry|null) => {
-    return entry ? new Chat (app, {
+}): Promise<Chat | null> {
+  return getChatEntry(options.user_id, options.chat_id).then((entry: ChatEntry | null) => {
+    return entry ? new Chat(app, {
       driver: entry.driver,
       context: entry.context,
       service: options.service,
       user_id: options.user_id,
-      chat_id: options.chat_id,
+      chat_id: options.chat_id
     }) : null
   })
 }
@@ -223,10 +237,10 @@ export async function updateChatEntry(data: ChatEntry) {
   }
 }
 
-export async function removeChatEntry(data: ChatEntry|null) {
+export async function removeChatEntry(data: ChatEntry | null) {
   return data ? dynamoDB.send(new DeleteItemCommand({
     TableName: 'chats',
-    Key: { user_id: { S: data.user_id }, chat_id: { S: data.chat_id } },
+    Key: { user_id: { S: data.user_id }, chat_id: { S: data.chat_id } }
   })) : null
 }
 
@@ -288,5 +302,73 @@ export async function getOrCreateUserEntry(user: UserInfo): Promise<UserEntry> {
           chats: []
         }
       }) : entry
+  })
+}
+
+export async function storeConfirmationEntry(confirmation: ConfirmationEntry): Promise<ConfirmationEntry> {
+  return dynamoDB.send(new PutItemCommand({
+    TableName: 'confirmations',
+    Item: {
+      id: { S: confirmation.id },
+      user_id: { S: confirmation.user_id },
+      status: { S: confirmation.status },
+      details: { S: JSON.stringify(confirmation.details) }
+    }
+  })).then(() => {
+    return confirmation
+  })
+}
+
+export async function updateConfirmationEntry(id: string, user_id: string, options: {
+  details?: object,
+  status?: ConfirmationStatus
+}): Promise<any> {
+
+  let changes: string = "SET "
+  let names: Record<string, string> = { '#status': "status"}
+  let values: Record<string, AttributeValue> = { ':status': { S: "pending" }}
+
+  if (options.details) {
+    changes += "#details=:details"
+    names["#details"] = "details"
+    values[":details"] = { S: JSON.stringify(options.details) }
+  }
+  if (options.status) {
+    changes += "#status=:new_status"
+    values[":new_status"] = { S: options.status }
+  }
+
+  return dynamoDB.send(new UpdateItemCommand({
+    TableName: 'confirmations',
+    Key: { id: { S: id }, user_id: { S: user_id } },
+    UpdateExpression: changes,
+    ConditionExpression: "#status = :status",
+    ExpressionAttributeNames: names,
+    ExpressionAttributeValues: values
+  })).catch(e => {
+    if (e.name !== 'ConditionalCheckFailedException') {
+      throw e
+    }
+  })
+}
+
+export async function extendConfirmationEntryDetails(id: string, user_id: string, details: object): Promise<ConfirmationEntry> {
+  let confirmation = await getConfirmationEntry(id, user_id)
+  return updateConfirmationEntry(id, user_id, { details: deepmerge(
+    confirmation.details, details
+  )})
+}
+
+export async function getConfirmationEntry(id: string, user_id: string): Promise<ConfirmationEntry> {
+  return dynamoDB.send(new GetItemCommand({
+    TableName: 'confirmations',
+    Key: { id: { S: id }, user_id: { S: user_id } }
+  })).then((output: GetItemCommandOutput): ConfirmationEntry => {
+    return {
+      id: output.Item?.id.S || '',
+      details: JSON.parse(output.Item?.details.S || '{}'),
+      status: output.Item?.status.S as ConfirmationStatus || 'pending',
+      user_id: output.Item?.user_id.S || ''
+    }
   })
 }

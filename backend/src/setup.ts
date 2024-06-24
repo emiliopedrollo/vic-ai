@@ -33,6 +33,43 @@ const assertUsersTable = async (dynamoDB:DynamoDBClient): Promise<void> => {
     })
   })
 }
+const assertConfirmationsTable = async (dynamoDB:DynamoDBClient): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    dynamoDB.send(new DescribeTableCommand({
+      TableName: 'confirmations'
+    })).then(() => resolve()).catch((e) => {
+      if (e.name === 'ResourceNotFoundException') {
+        dynamoDB.send(new CreateTableCommand({
+          TableName: 'confirmations',
+          AttributeDefinitions: [
+            {
+              AttributeName: 'user_id',
+              AttributeType: 'S'
+            },{
+              AttributeName: 'id',
+              AttributeType: 'S'
+            }
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'user_id',
+              KeyType: 'HASH'
+            },{
+              AttributeName: 'id',
+              KeyType: 'RANGE'
+            }
+          ],
+          ProvisionedThroughput: {
+            WriteCapacityUnits: 1,
+            ReadCapacityUnits: 1,
+          }
+        })).then(() => resolve())
+      } else {
+        reject(e)
+      }
+    })
+  })
+}
 
 const assertChatsTable = async (dynamoDB:DynamoDBClient): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -111,6 +148,7 @@ export async function setupEnv(app: App) {
     assertUsersTable(dynamoDB),
     assertChatsTable(dynamoDB),
     assertConnectionsTable(dynamoDB),
+    assertConfirmationsTable(dynamoDB),
   ])
 
 

@@ -1,8 +1,9 @@
-import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { computed, type Ref, type ComputedRef } from 'vue'
 import { defineStore } from 'pinia'
 import { useLocalStorage } from '@vueuse/core'
 import { isPast, addSeconds } from 'date-fns'
 import axios, { type AxiosResponse } from 'axios'
+import { log } from '@/logger'
 
 interface SuccessAuthResponse {
   access_token: string,
@@ -49,11 +50,11 @@ export const useOAuthStore = defineStore('oauth', () => {
   //   expireAt.value = addSeconds(new Date, 10)
   // }
   async function refresh(): Promise<boolean> {
-    console.log("Refreshing token")
+    log("Refreshing token")
     return new Promise((resolve, reject) => {
       const domain = import.meta.env.VITE_COWMED_AUTH_URL
       const client_id = import.meta.env.VITE_COWMED_OAUTH_CLIENT_ID
-      const redirect_uri = `${location.protocol}//${location.host}/callback`
+      // const redirect_uri = `${location.protocol}//${location.host}/callback`
 
       axios({
         method: 'post',
