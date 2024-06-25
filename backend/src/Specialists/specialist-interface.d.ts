@@ -23,12 +23,24 @@ export type Tool = NamelessTool & {
   }
 }
 
-export interface InstructorSpecialist {
+export interface OverviewSpecialist {
   getOverview: { (): object|string }
+}
+
+export interface TutorialSpecialist {
   getSoftwareTutorials: { (): Array<object|string>|object|string }
+}
+
+export interface FAQSpecialist {
   getFrequentlyAskedQuestions: { (): Record<string,{question: string, answer: string}[]> }
+}
+
+export interface GlossarySpecialist {
   getGlossary: { (): Record<string, string> }
 }
+
+export interface InstructorSpecialist
+  implements OverviewSpecialist, TutorialSpecialist, FAQSpecialist, GlossarySpecialist {}
 
 export interface SpecialistInterface {
   // send: { (message: string, metadata?: Record<string, string>): Promise<ChatSendOutput> }

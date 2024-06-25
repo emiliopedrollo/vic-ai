@@ -1,8 +1,9 @@
 import { HandlerOptions, Specialist, ToolsDefinition } from '#/Specialists/Specialist'
 import { ServiceFactory } from '#/Services/factory'
+import { GlossarySpecialist } from '#/Specialists/specialist-interface'
 
 
-export class Reproduction extends Specialist {
+export class Reproduction extends Specialist implements GlossarySpecialist{
 
   constructor(protected services: ServiceFactory) {
     super()
