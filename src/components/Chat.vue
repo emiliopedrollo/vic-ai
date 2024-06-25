@@ -8,6 +8,7 @@ import type { Farm } from '@/Interfaces/farm'
 import { Socket } from '@/Socket'
 import { debug, group, groupEnd, info, log } from '@/logger'
 import Confirmation, { type ConfirmationStatus, type ConfirmationTypes } from '@/components/Confirmation.vue'
+import type { LLM } from '@/Interfaces/llm'
 
 const store = useMainStore()
 // store.$reset()
@@ -24,6 +25,7 @@ let socket: Socket;
 const props = defineProps<{
   farm: Farm | undefined,
   chat_id: string | null,
+  llm: LLM
 }>()
 
 const emit = defineEmits<{
@@ -239,7 +241,7 @@ function process(text: string|null = null, metadata?: Record<string, string>)
     'content': text,
     'metadata': metadata
   }]
-  socket.sendMessage(chatId.value, text, metadata)
+  socket.sendMessage(chatId.value, text, metadata, props.llm)
   scrollToBottom()
   inputMessage.value?.focus()
   message.value = ''
@@ -321,7 +323,7 @@ function rejectRequest(confirmation_id: string) {
              placeholder="Escreva sua mensagem aqui"
              v-model="message"
       >
-      <input type="submit" value="Enviar" class="
+      <input type="submit" :value="  'Enviar' + ((!chatId && props.llm !== 'Default') ? ' para '+props.llm : '')" class="
             px-4 py-3 rounded-[8px] cursor-pointer
           " :class="{
             'bg-[#F2F2F2]': state !== 'ready',

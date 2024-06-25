@@ -1,6 +1,7 @@
 import type { Confirmation, Message } from '@/components/Chat.vue'
 import { error, info } from '@/logger'
 import type { ConfirmationStatus } from '@/components/Confirmation.vue'
+import type { LLM } from '@/Interfaces/llm'
 
 export class Socket {
 
@@ -34,8 +35,12 @@ export class Socket {
     }))
   }
 
-  sendMessage = (chat_id: string|null, message: string, metadata?: Record<string,string>) => {
-    this.send('message',{ chat_id, message, metadata: JSON.stringify(metadata) })
+  sendMessage = (
+    chat_id: string|null, message: string, metadata?: Record<string,string>, preferred_llm?: LLM
+  ) => {
+    this.send('message',{
+      chat_id, message, metadata: JSON.stringify(metadata), preferred_llm
+    })
   }
 
   deleteChat = (chat_id: string) => {

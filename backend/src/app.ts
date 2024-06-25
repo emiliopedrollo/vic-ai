@@ -36,6 +36,9 @@ const httpsAgent = process.env['AXIOS_CA']
 export class App {
 
   public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_BACKEND"]) || "chatgpt"
+  public availableDrivers: driverType[] = (process.env["ENABLED_LLM_LIST"] || "chatgpt,gemini,titan,parrot")
+    .split(',').map((llm: string) => getDriverTypeFromString(llm))
+    .filter((driver): driver is driverType => driver !== undefined)
 
   protected webSocket: expressWs.Instance = expressWs(express())
   protected app: expressWs.Application = this.webSocket.app
@@ -51,6 +54,16 @@ export class App {
 
   getAuthenticatedServices = (token: string, farm: string) => {
     return new ServiceFactory(token, farm)
+  }
+
+  protected getDriverFromPreferredLLM = (preferred_llm?: string): driverType => {
+    switch (preferred_llm) {
+      case 'ChatGPT': return this.availableDrivers.includes("chatgpt") ? "chatgpt" : this.defaultDriver
+      case 'Gemini': return this.availableDrivers.includes("gemini") ? "gemini" : this.defaultDriver
+      case 'Titan': return this.availableDrivers.includes("titan") ? "titan" : this.defaultDriver
+      case 'Parrot': return this.availableDrivers.includes("parrot") ? "parrot" : this.defaultDriver
+      default: return this.defaultDriver
+    }
   }
 
   protected initWebSocket = () => {
@@ -105,9 +118,10 @@ export class App {
             let { user, auth } = await getConnectionData(req.id)
 
             let context: any = null
-            let driver: driverType = this.defaultDriver
 
             if (req.data.chat_id == null) {
+              let driver: driverType = this.getDriverFromPreferredLLM(req.data.preferred_llm)
+
               req.data.chat_id = uuidv7()
 
               let summarize = await (new Chat(this, {
@@ -264,7 +278,8 @@ interface MessagePackage {
   data: {
     chat_id?: string|null
     message: string
-    metadata?: string
+    metadata?: string,
+    preferred_llm?: string,
   }
 }
 

@@ -4,6 +4,7 @@ import { useMainStore } from '@/stores/main'
 import { ref } from 'vue'
 import Chat from '@/components/Chat.vue'
 import { useChatStore } from '@/stores/chat'
+import type { LLM } from '@/Interfaces/llm'
 // import { updateConnection } from '../../backend/src/dynamo'
 
 const store = useMainStore()
@@ -20,6 +21,8 @@ if (chatStore.value) {
 
 const childChat = ref<typeof Chat>()
 const currentChatId = ref<string | null>(null)
+const dev = ref<boolean>(import.meta.env.DEV)
+const requested_llm = ref<LLM>('Default')
 // store.$reset()
 
 
@@ -160,8 +163,28 @@ function updateCurrentChatId(id: string | null) {
             {{ store.activeFarm?.name }}
             <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
           </div>
+          <div v-if="dev && currentChatId === null"
+            class="
+            text-md dark:text-neutral-50 text-[#808080] select-none
+            font-bold px-2.5 py-2.5 inline-block relative group
+          ">
+            {{ requested_llm }}
+            <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
+            <div class="
+              group-hover:!block absolute
+              hidden dark:bg-[#333333] bg-[#FFFFFF] mt-1 w-[120px] rounded-[8px] overflow-hidden left-0
+            ">
+              <ul>
+                <li
+                  v-for="llm in ['Default', 'ChatGPT', 'Gemini', 'Titan', 'Parrot']"
+                  v-on:click="requested_llm = (llm as LLM)"
+                  class="px-3 py-1 w-full cursor-pointer hover:bg-[#222222]"
+                >{{ llm }} {{ requested_llm === llm ? '✓' : null }}</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <Chat ref="childChat" :farm="store.activeFarm" :chat_id="currentChatId" @change-chat-id="updateCurrentChatId" />
+        <Chat ref="childChat" :farm="store.activeFarm" :chat_id="currentChatId" :llm="requested_llm" @change-chat-id="updateCurrentChatId" />
       </div>
     </div>
   </main>
