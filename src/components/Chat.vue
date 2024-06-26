@@ -67,10 +67,11 @@ const loadChat = async (chat_id: string) => {
   if (chat_id !== chatId.value) {
     const {
       status,
+      driver,
       messages: chat_messages
     }  = await socket.loadChat(chat_id)
 
-    group('Load Chat')
+    group(`Load ${driver} Chat`)
     chat_messages.forEach((entry) => info(entry))
     groupEnd()
 

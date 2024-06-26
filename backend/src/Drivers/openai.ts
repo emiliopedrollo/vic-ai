@@ -2,7 +2,7 @@
 import OpenAI from 'openai'
 import { ChatDriver } from '#/Drivers/chat-driver'
 import dotenv from "dotenv";
-import { Chat, ChatSendOutput } from '#/chat'
+import { Chat, ChatSendOutput, driverType } from '#/chat'
 import { Message as VicMessage } from '#/message'
 import { Assistant, AssistantUpdateParams, Threads } from 'openai/resources/beta'
 import Run = Threads.Run
@@ -198,6 +198,7 @@ export class OpenAiChat implements ChatDriver
 
   public getMessages = async (): Promise<{
     status: RunStatus
+    driver: driverType,
     messages: VicMessage[]
   }> => {
     const thread_id = await this.getThread()
@@ -211,6 +212,7 @@ export class OpenAiChat implements ChatDriver
 
     return {
       status: status,
+      driver: 'chatgpt',
       messages: messages.data.reverse().map((message) => ({
         role: message.role,
         content: message.content[0].type === 'text' ? message.content[0].text.value : '',

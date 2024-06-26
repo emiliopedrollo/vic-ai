@@ -1,5 +1,5 @@
 import { ChatDriver } from '#/Drivers/chat-driver'
-import { Chat, ChatSendOutput } from '#/chat'
+import { Chat, ChatSendOutput, driverType } from '#/chat'
 import { Message } from '#/message'
 import { Threads } from 'openai/resources/beta'
 import {
@@ -195,10 +195,12 @@ export class GeminiChat implements ChatDriver
 
   public getMessages = async (): Promise<{
     status: RunStatus,
+    driver: driverType,
     messages: Message[]
   }> => {
     return{
-      status: 'completed' as RunStatus,
+      status: 'completed',
+      driver: 'gemini',
       messages: (this.chat.context?.history || []).filter((content: GeminiHistoryContent) =>
         ['user','model'].includes(content.role)
       ).map((content: GeminiHistoryContent): Message => ({

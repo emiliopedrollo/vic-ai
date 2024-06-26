@@ -47,10 +47,10 @@ export class Socket {
     this.send('delete-chat', { chat_id })
   }
 
-  loadChat = (chat_id: string): Promise<{status: string, messages: Message[]}> => {
+  loadChat = (chat_id: string): Promise<{status: string, driver: string, messages: Message[]}> => {
     return new Promise(resolve => {
       const requester = crypto.randomUUID()
-      this.responseQueue[requester] = (data: {status: string, messages: Message[]}) => {
+      this.responseQueue[requester] = (data: {status: string, driver: string, messages: Message[]}) => {
         resolve(data)
       }
       this.send('request-chat', { chat_id, requester })

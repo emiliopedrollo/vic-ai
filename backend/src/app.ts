@@ -35,7 +35,9 @@ const httpsAgent = process.env['AXIOS_CA']
 
 export class App {
 
-  public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_BACKEND"]) || "chatgpt"
+  public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_BACKEND"]) ||
+    (<driverType[]>[ "chatgpt", "titan", "gemini" ])[Math.trunc((Math.random() * 3))]
+
   public availableDrivers: driverType[] = (process.env["ENABLED_LLM_LIST"] || "chatgpt,gemini,titan,parrot")
     .split(',').map((llm: string) => getDriverTypeFromString(llm))
     .filter((driver): driver is driverType => driver !== undefined)

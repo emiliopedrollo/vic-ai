@@ -131,7 +131,7 @@ export class Chat implements ChatDef {
     return this.driver.send(message, metadata)
   }
 
-  getMessages = async (): Promise<{status: RunStatus, messages: Message[]}> => {
+  getMessages = async (): Promise<{status: RunStatus, driver: driverType, messages: Message[]}> => {
     return this.driver.getMessages()
   }
 }

@@ -1,5 +1,5 @@
 import { ChatDriver } from '#/Drivers/chat-driver'
-import { Chat, ChatSendOutput } from '#/chat'
+import { Chat, ChatSendOutput, driverType } from '#/chat'
 import { Message } from '#/message'
 import { Threads } from 'openai/resources/beta'
 import RunStatus = Threads.RunStatus
@@ -48,10 +48,12 @@ export class TitanChat implements ChatDriver
 
   public getMessages = async (): Promise<{
     status: RunStatus,
+    driver: driverType,
     messages: Message[]
   }> => {
     return {
       status: 'completed',
+      driver: 'titan',
       messages: this.chat.context
     }
   }
