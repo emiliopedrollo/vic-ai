@@ -2,18 +2,31 @@ import { Context } from '#/Context'
 
 export type toolTypes = "function"
 
+export type ParameterType = "number" | "string" | "integer" | "boolean" | "array" | "object"
+
+export type Property = {
+  type: ParameterType,
+  format?: string,
+  description?: string,
+  nullable?: boolean,
+  items?: Parameters
+  properties?: Record<string, Parameters>
+  enum?: string[],
+  example?: unknown
+}
+
+export type Parameters = {
+  type: ParameterType,
+  description?: string,
+  properties?: Record<string, Property>,
+  required?: string[]
+}
+
 type NamelessTool = {
   type: toolTypes,
   function: {
     description: string,
-    parameters: {
-      type: "object",
-      properties: Record<string, {
-        type: "number" | "string",
-        description?: string
-      }>,
-      required?: Array<string>
-    }
+    parameters: Parameters
   }
 }
 

@@ -294,10 +294,10 @@ function rejectRequest(confirmation_id: string) {
             <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello"/>
           </div>
           <div class="self-center text-2xl mt-12 text-[#666666] dark:text-white">Como posso te ajudar?</div>
-          <div class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">
+          <div class="flex flex-row align-stretch flex-wrap gap-5 justify-center align-center mt-8 mb-20">
             <div v-for="n in 4" class="w-1/3 text-center text-[#808080] dark:text-white">
               <div class="
-                w-full inline-block text-start p-7 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer
+                w-full h-full inline-block text-start p-7 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer
               " v-on:click="startChatWithText(suggestions[n-1].text)">
                 <span class="font-500 text-base" v-html="suggestions[n-1].html"></span>
               </div>
@@ -323,7 +323,7 @@ function rejectRequest(confirmation_id: string) {
              placeholder="Escreva sua mensagem aqui"
              v-model="message"
       >
-      <input type="submit" :value="  'Enviar' + ((!chatId && props.llm !== 'Default') ? ' para '+props.llm : '')" class="
+      <input type="submit" :value="( 'Enviar ' + ((!chatId && props.llm !== 'Padrão') ? `[${props.llm}]` : '')).trim()" class="
             px-4 py-3 rounded-[8px] cursor-pointer
           " :class="{
             'bg-[#F2F2F2]': state !== 'ready',

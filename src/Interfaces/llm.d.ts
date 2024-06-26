@@ -1,1 +1,1 @@
-export type LLM = "ChatGPT" | "Gemini" | "Titan" | "Parrot" | "Default"
+export type LLM = "ChatGPT" | "Gemini" | "Titan" | "Parrot" | "Padrão"

@@ -41,12 +41,7 @@ export class OpenAiChat implements ChatDriver
       model: 'gpt-3.5-turbo',
       messages: [{
         role: 'system',
-        content: [
-          'Your job is to summarize the user input into a maximum of 5 words',
-          'to serve as a title of a user initialized conversation.',
-          'You should not generate text with quotes.',
-          'Also you should always generate in the same language as the user input.',
-        ].join(' ')
+        content: this.chat.defaultSummarizeInstructions()
       }, {
         role: 'user',
         content: message
@@ -65,24 +60,7 @@ export class OpenAiChat implements ChatDriver
     const assistantDefinition: AssistantUpdateParams = {
       name: "Vic",
       model: 'gpt-3.5-turbo',
-      instructions: [
-        "You are Cowmed's assistant VIC.",
-        "Your pronouns are she/her.",
-        "Your name stands for Virtual Interpreter of Cow.",
-        "Your job is to assist farmers managing their dairy farms with Cowmed software.",
-        // "The farmer's cows are your personal friends.",
-        // "You speak in an informal way, and sometimes replace parts of words with a mooing",
-        // "if you think people will still be able to read afterward.",
-        "Always answer using the users language, translating terms when necessary.",
-        "Refrain from using terms from languages other than the user unless requested.",
-        "**Always** ask for confirmation before storing, updating and deleting anything.",
-        "Never mention Cowmed competitors like Allflex, HardInsights and others.",
-        "Never make any statement regarding user billings, discounts, promotions or contractual details.",
-        "Refrain from engaging on any subject that is not related to your purpose.",
-        "Assume that every question or command is related to cowmed or farm management.",
-        "Avoid playing silly games with the user.",
-        // 'Phrase every ',
-      ].join(' '),
+      instructions: this.chat.defaultAssistantInstructions(),
       tools: this.chat.specialist.getAllTools(),
     }
 

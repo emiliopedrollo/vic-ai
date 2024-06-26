@@ -22,7 +22,7 @@ if (chatStore.value) {
 const childChat = ref<typeof Chat>()
 const currentChatId = ref<string | null>(null)
 const dev = ref<boolean>(import.meta.env.DEV)
-const requested_llm = ref<LLM>('Default')
+const requested_llm = ref<LLM>('Padrão')
 // store.$reset()
 
 
@@ -155,7 +155,7 @@ function updateCurrentChatId(id: string | null) {
         </div>
       </div>
       <div class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]">
-        <div>
+        <div class="flex flex-row">
           <div v-on:click="changeFarm()" class="
             text-md dark:text-neutral-50 text-[#808080]
             font-bold px-2.5 py-2.5 cursor-pointer inline-block
@@ -164,27 +164,33 @@ function updateCurrentChatId(id: string | null) {
             <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
           </div>
           <div v-if="dev && currentChatId === null"
-            class="
+               class="
             text-md dark:text-neutral-50 text-[#808080] select-none
-            font-bold px-2.5 py-2.5 inline-block relative group
+            font-bold px-2.5 py-2.5 group flex flex-row gap-2
           ">
-            {{ requested_llm }}
-            <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
-            <div class="
+            <div class="relative font-bold ">
+              {{ requested_llm }}
+              <img class="inline-block w-3 ml-1" src="/drop.svg" alt="change farm" />
+              <div class="
               group-hover:!block absolute
-              hidden dark:bg-[#333333] bg-[#FFFFFF] mt-1 w-[120px] rounded-[8px] overflow-hidden left-0
+              hidden dark:bg-[#333333] bg-[#FFFFFF] mt-1 min-w-[120px] rounded-[8px] overflow-hidden left-[-12px]
             ">
-              <ul>
-                <li
-                  v-for="llm in ['Default', 'ChatGPT', 'Gemini', 'Titan', 'Parrot']"
-                  v-on:click="requested_llm = (llm as LLM)"
-                  class="px-3 py-1 w-full cursor-pointer hover:bg-[#222222]"
-                >{{ llm }} {{ requested_llm === llm ? '✓' : null }}</li>
-              </ul>
+                <ul>
+                  <li
+                    v-for="llm in ['Padrão', 'ChatGPT', 'Gemini', 'Titan', 'Parrot']"
+                    v-on:click="requested_llm = (llm as LLM)"
+                    class="px-3 py-1 w-full cursor-pointer hover:bg-[#222222]"
+                  >
+                    <span :class="{ 'line-through': ['Titan'].includes(llm) }">{{ llm }}</span>
+                    {{ requested_llm === llm ? '✓' : null }}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-        <Chat ref="childChat" :farm="store.activeFarm" :chat_id="currentChatId" :llm="requested_llm" @change-chat-id="updateCurrentChatId" />
+        <Chat ref="childChat" :farm="store.activeFarm" :chat_id="currentChatId" :llm="requested_llm"
+              @change-chat-id="updateCurrentChatId" />
       </div>
     </div>
   </main>
