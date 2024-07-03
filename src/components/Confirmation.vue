@@ -3,8 +3,15 @@
 import { type ModelRef, onUpdated, ref } from 'vue'
 import type { Confirmation, Message } from '@/components/Chat.vue'
 import { info } from '@/logger'
+import StoreAnimal from '@/components/Confirmations/StoreAnimal.vue'
+import UpdateAnimal from '@/components/Confirmations/UpdateAnimal.vue'
+import MoveAnimals from '@/components/Confirmations/MoveAnimals.vue'
+import StoreBatch from '@/components/Confirmations/StoreBatch.vue'
 
-export type ConfirmationTypes = 'prepare_animal_store'
+
+type AnimalConfirmationTypes = 'prepare_animal_store' | 'prepare_animal_update'
+type BatchConfirmationTypes = 'prepare_batch_store' | 'prepare_animals_move'
+export type ConfirmationTypes = AnimalConfirmationTypes | BatchConfirmationTypes
 
 export type ConfirmationStatus = 'pending' | 'confirmed' | 'canceled' | 'rejected'
 
@@ -53,6 +60,14 @@ const sendReject = () => {
 //   }
 // }
 
+const last_service_method = (method?: string): string|undefined => {
+  switch (method) {
+    case 'insemination' : return 'Inseminação artificial'
+    case 'embryo_transfer' : return 'Transferência embrionária'
+    case 'natural_breeding' : return 'Monta natural'
+  }
+}
+
 </script>
 
 <template>
@@ -60,32 +75,12 @@ const sendReject = () => {
     <div class="
       w-3/5 bg-[#808080] mt-4 mx-4 rounded-[8px] p-4 flex flex-col align-center
     " :class="{ 'cursor-wait': !ready, }">
-      <h2 class="font-bold text-lg mb-3">
-        <span v-if="(confirmation?.details['prepare_animal_store'] || []).length > 1">Inclusão de animais</span>
-        <span v-else>Inclusão de animal</span>
-      </h2>
-      <div class="flex flex-col gap-5">
-        <div v-for="animal in (confirmation?.details['prepare_animal_store'] || [])" class="
-          flex flex-col items-center
-        ">
-          <div v-if="animal.args.name" class="w-full flex flex-row gap-4 justify-space-between">
-            <div>Name:</div>
-            <div>{{ animal.args.name }}</div>
-          </div>
-          <div class="w-full flex flex-row gap-4 justify-space-between">
-            <div>Brinco:</div>
-            <div>{{ animal.args.earring }}</div>
-          </div>
-          <div class="w-full flex flex-row gap-4 justify-space-between">
-            <div>Lote:</div>
-            <div>{{ animal.extra?.batch || animal.args?.batch_slug }}</div>
-          </div>
-          <div v-if="animal.args.birth" class="w-full flex flex-row gap-4 justify-space-between">
-            <div>Data de Nascimento:</div>
-            <div>{{ animal.args.birth }}</div>
-          </div>
-        </div>
-      </div>
+
+      <UpdateAnimal v-if="confirmation?.details['prepare_animal_update']" :ready="ready" :confirmation="confirmation" />
+      <StoreAnimal v-if="confirmation?.details['prepare_animal_store']" :ready="ready" :confirmation="confirmation" />
+      <MoveAnimals v-if="confirmation?.details['prepare_animals_move']" :ready="ready" :confirmation="confirmation" />
+      <StoreBatch v-if="confirmation?.details['prepare_batch_store']" :ready="ready" :confirmation="confirmation" />
+
       <div v-if="confirmation?.status === 'confirmed'">
         <div class="text-md mt-3">Você confirmou esta requisição.</div>
       </div>

@@ -15,7 +15,7 @@ export type Property = {
   example?: unknown
 }
 
-export type Parameters = {
+export type Parameters = Record<string, any> & {
   type: ParameterType,
   description?: string,
   properties?: Record<string, Property>,
@@ -25,7 +25,7 @@ export type Parameters = {
 type NamelessTool = {
   type: toolTypes,
   function: {
-    description: string,
+    description?: string,
     parameters: Parameters
   }
 }

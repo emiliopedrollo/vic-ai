@@ -2,11 +2,13 @@ import {
   FAQSpecialist, GlossarySpecialist,
   InstructorSpecialist,
   NamelessTool,
-  OverviewSpecialist,
+  OverviewSpecialist, ParameterType,
   SpecialistInterface,
   Tool, TutorialSpecialist
 } from '#/Specialists/specialist-interface'
 import { Context } from '#/Context'
+import { PreparationDetails } from '#/dynamo'
+import { uuidv4 } from 'uuidv7'
 
 export type HandlerOptions = {
   context: Context,
@@ -17,6 +19,20 @@ export type ToolsDefinition = Record<string, {
   definition: NamelessTool,
   handler: { (options: HandlerOptions): Promise<object | undefined> }
 }>
+
+export type FunctionProperty = {
+  type: ParameterType,
+  items?: FunctionProperty
+  format?: string,
+  nullable?: boolean,
+  enum?: string[],
+  description?: string
+}
+
+export type AnimalPreparationTypes = "prepare_animal_store" | "prepare_animal_update"
+export type BatchPreparationTypes = "prepare_batch_store" | "prepare_animals_move"
+
+export type PreparationTypes = AnimalPreparationTypes | BatchPreparationTypes
 
 export abstract class Specialist implements SpecialistInterface {
 
@@ -33,6 +49,41 @@ export abstract class Specialist implements SpecialistInterface {
       ...this.defineTools(),
       ...this.getInstructorTools()
     }
+  }
+
+  protected createPreparation = async (options: HandlerOptions & {
+    type: PreparationTypes,
+    required_arguments: string[],
+    extra?: Record<any, any>
+  }) => {
+
+    const missing: string[] = [];
+    options.required_arguments.forEach((entry) => {
+      if (options.args[entry] === undefined) {
+        missing.push(entry)
+      }
+    })
+
+    if (missing.length > 0) {
+      return {
+        status: "Error",
+        details: `Missing required argument(s): ${missing.join(', ')}`,
+      }
+    }
+
+    const context_args: PreparationDetails = {
+      args: options.args,
+      preparation_id: uuidv4(),
+      extra: options.extra || {}
+    }
+
+    await options.context.createOrExtendConfirmation(options.type, context_args)
+
+    return ({
+      status: "confirm_to_proceed",
+      preparation: context_args.preparation_id,
+      details: "Require user confirmation to proceed"
+    })
   }
 
   isOverviewSpecialist(specialist: unknown): specialist is OverviewSpecialist {
@@ -114,22 +165,28 @@ export abstract class Specialist implements SpecialistInterface {
     return definitions
   }
 
+  removeUndefined = <T extends Record<string,any>>(obj: T): T => {
+    Object.keys(obj).forEach(key => {
+      if (obj[key] === undefined) {
+        delete obj[key]
+      }
+    })
+    return obj;
+  }
+
   buildDefinition = (options?: {
     description?: string,
-    properties?: Record<string, {
-      type: "number" | "string",
-      description?: string
-    }>,
+    properties?: Record<string, FunctionProperty>,
     required?: Array<string>
   }): NamelessTool => ({
     type: 'function',
     function: {
-      description: options?.description || '',
-      parameters: {
+      description: options?.description,
+      parameters: this.removeUndefined({
         type: 'object',
         properties: options?.properties || {},
         required: options?.required
-      }
+      })
     }
   })
 

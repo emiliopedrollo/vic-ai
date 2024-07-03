@@ -20,7 +20,17 @@ export async function request (options: {
 
       case 'user-info': return `api/user-info`
       case 'farm-info': return `${prefix}`
+
+      case 'list-units': return `${prefix}/unit/datatable`
+
+      case 'list-animals': return `${prefix}/animal/datatable`
+      case 'store-animal': return `${prefix}/animal`
+      case 'update-animal': return `${prefix}/animal/${options.params?.animal}`
+      case 'move-animals': return `${prefix}/animal/move-many`
+
       case 'list-batches': return `${prefix}/batch/datatable`
+      case 'store-batch': return `${prefix}/batch`
+
       case 'list-infirmary': return `${prefix}/event/datatable/health/group`
       case 'list-heats': return `${prefix}/event/datatable/reproduction/heat`
     }

@@ -112,6 +112,11 @@ export class Chat implements ChatDef {
       // "You speak in an informal way, and sometimes replace parts of words with a mooing",
       // "if you think people will still be able to read afterward.",
       "Always answer using the users language, translating terms when necessary.",
+      `The current date is ${(new Date).toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        timeZoneName: 'short'
+      })}`,
+      "**Never** assume you know what time or date is it, always call `get_current_time`.",
       "Refrain from using terms from languages other than the user unless requested.",
       "**Always** ask for confirmation before storing, updating and deleting anything.",
       "Never mention Cowmed competitors like Allflex, HardInsights and others.",

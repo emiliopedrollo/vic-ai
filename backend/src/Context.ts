@@ -2,7 +2,7 @@ import { Mutex } from 'async-mutex'
 import {
   ConfirmationEntry,
   extendConfirmationEntryDetails,
-  getConfirmationEntry,
+  getConfirmationEntry, PreparationDetails,
   storeConfirmationEntry, updateConfirmationEntry
 } from '#/dynamo'
 import { uuidv4 } from 'uuidv7'
@@ -31,7 +31,7 @@ export class Context {
     return this.mutex
   }
 
-  public createOrExtendConfirmation = async (type: string, details: object) => {
+  public createOrExtendConfirmation = async (type: string, details: PreparationDetails) => {
     return await this.mutex.runExclusive(async () => {
       return this.confirmation = this.confirmation
         ? await this.updateConfirmationEntry(this.confirmation, type, details)
@@ -42,7 +42,7 @@ export class Context {
   public getConfirmationEntry = async (id: string): Promise<ConfirmationEntry> => {
     return getConfirmationEntry(id, this.user_id)
   }
-  public createConfirmationEntry = async (type: string, details: object): Promise<string> => {
+  public createConfirmationEntry = async (type: string, details: PreparationDetails): Promise<string> => {
     const id = uuidv4()
     return storeConfirmationEntry({
       id, user_id: this.user_id, details: { [type]: [details] }, status: "pending"
@@ -50,7 +50,7 @@ export class Context {
       return id
     })
   }
-  public updateConfirmationEntry = async (id: string, type: string, details: object): Promise<string> => {
+  public updateConfirmationEntry = async (id: string, type: string, details: PreparationDetails): Promise<string> => {
     return extendConfirmationEntryDetails(
       id, this.user_id, {[type]: [details]}
     ).then(() => {

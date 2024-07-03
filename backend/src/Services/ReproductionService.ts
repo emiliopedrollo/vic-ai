@@ -47,11 +47,11 @@ export class ReproductionService {
       '+1245': 'Pacific/Chatham'         // Chatham Islands Time
     }
 
-    const offset = date.getTimezoneOffset();
-    const absoluteOffset = Math.abs(offset);
-    const hours = String(Math.floor(absoluteOffset / 60)).padStart(2, '0');
-    const minutes = String(absoluteOffset % 60).padStart(2, '0');
-    const sign = offset <= 0 ? '+' : '-';
+    const offset = date.getTimezoneOffset()
+    const absoluteOffset = Math.abs(offset)
+    const hours = String(Math.floor(absoluteOffset / 60)).padStart(2, '0')
+    const minutes = String(absoluteOffset % 60).padStart(2, '0')
+    const sign = offset <= 0 ? '+' : '-'
     const timezone = timezonesOffset[`${sign}${hours}${minutes}`]
     if (timezone) {
       return timezone
@@ -68,7 +68,10 @@ export class ReproductionService {
     })
   }
 
-  protected reduceServiceRecommendation = (recommendation: null|{ hour: number, recommended: boolean }[], timestamp: Date) => {
+  protected datesFromRecommendation = (recommendation: null | {
+    hour: number,
+    recommended: boolean
+  }[], timestamp: Date): { from: Date, until: Date } | null => {
 
     if (recommendation === undefined || recommendation === null) {
       return null
@@ -103,6 +106,39 @@ export class ReproductionService {
     until_date.setHours(reduced.until + 3, 0, 0, 0)
 
     return {
+      from: from_date,
+      until: until_date
+    }
+  }
+
+  protected dateIsPast = (date?: Date | null): boolean => {
+    return !!date && (date.getTime() <= (new Date()).getTime())
+  }
+
+  protected getLatestRecommendationDate = (
+    conventional_until_date?: Date,
+    sexed_until_date?: Date
+  ) => {
+    if ((conventional_until_date === undefined) && (sexed_until_date === undefined)) {
+      return null
+    } else if (conventional_until_date === undefined) {
+      return sexed_until_date
+    } else if (sexed_until_date === undefined) {
+      return conventional_until_date
+    } else {
+      return (conventional_until_date.getTime() > sexed_until_date.getTime())
+        ? conventional_until_date
+        : sexed_until_date
+    }
+  }
+
+  protected reduceServiceRecommendation = (from_date?: Date, until_date?: Date) => {
+
+    if (from_date === undefined || until_date === undefined) {
+      return null
+    }
+
+    return {
       from: from_date.toLocaleString('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         timeZoneName: 'short'
@@ -110,7 +146,7 @@ export class ReproductionService {
       until: until_date.toLocaleString('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         timeZoneName: 'short'
-      }),
+      })
     }
   }
 
@@ -128,7 +164,12 @@ export class ReproductionService {
       auth: this.token
     }).then(res => ({
       instructions: [
-        "When displaying service recommendation or heat timestamp you should only display the date and hour, without minutes or seconds."
+        'When displaying service recommendation or heat timestamp you should only and always display the date and hour, without minutes or seconds.',
+        `The time now is ${(new Date).toLocaleString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          timeZoneName: 'short'
+        })}. Take it in consideration when displaying recommendations.`,
+        'Do not show recommendations to the past'
       ],
       meta: {
         current_page: res.data.meta.current_page,
@@ -137,19 +178,48 @@ export class ReproductionService {
       },
       data: res.data.data
         // .filter((batch:any) => batch.type !== 'no-batch')
-        .map((entry: any) => ({
+        .map((entry: any) => {
+
+          const {
+            from: conventional_from_date,
+            until: conventional_until_date
+          } = (this.datesFromRecommendation(
+            entry['recommended_ai_period']?.conventional || null,
+            new Date(entry['timestamp'])
+          ) || {})
+
+          const conventional_recommendation =
+            this.reduceServiceRecommendation(conventional_from_date, conventional_until_date)
+
+
+          const {
+            from: sexed_from_date,
+            until: sexed_until_date
+          } = (this.datesFromRecommendation(
+            entry['recommended_ai_period']?.sexed || null,
+            new Date(entry['timestamp'])
+          ) || {})
+
+          const sexed_recommendation =
+            this.reduceServiceRecommendation(sexed_from_date, sexed_until_date)
+
+          return {
             heat_strength: entry['heat_strength'],
             heat_timestamp: entry['timestamp'],
             heat_confirmed_by_human: entry['confirmed_as'],
+            expired: this.dateIsPast(this.getLatestRecommendationDate(
+              conventional_until_date, sexed_until_date
+            )),
+
             recommended_service_period: {
-              sexed_semen: this.reduceServiceRecommendation(
-                entry['recommended_ai_period']?.sexed || null,
-                new Date(entry['timestamp'])
-              ),
-              conventional_semen: this.reduceServiceRecommendation(
-                entry['recommended_ai_period']?.conventional || null,
-                new Date(entry['timestamp'])
-              ),
+              sexed_semen: {
+                expired: this.dateIsPast(sexed_until_date),
+                ...sexed_recommendation
+              },
+              conventional_semen: {
+                expired: this.dateIsPast(conventional_until_date),
+                ...conventional_recommendation
+              },
             },
             animal: {
               name: entry['animal.name'],
@@ -171,8 +241,8 @@ export class ReproductionService {
               name: entry['animal.batch.name'],
               slug: entry['animal.batch.slug']
             }
-          })
-        )
+          }
+        })
     }))
   }
 

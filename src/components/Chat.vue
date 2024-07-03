@@ -179,7 +179,7 @@ export interface Message {
 
 export interface Confirmation {
   id: string,
-  details: Record<ConfirmationTypes, { args: Record<string,string>, extra: Record<string,string> }[]>,
+  details: Record<ConfirmationTypes, { args: Record<string,any>, extra: Record<string,string> }[]>,
   status: ConfirmationStatus
 }
 

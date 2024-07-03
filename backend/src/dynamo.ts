@@ -16,6 +16,7 @@ import { Chat, driverType, getDriverTypeFromString } from '#/chat'
 import { App } from '#/app'
 import { ServiceFactory } from '#/Services/factory'
 import deepmerge from 'deepmerge'
+import { PreparationTypes } from '#/Specialists/Specialist'
 
 dotenv.config()
 
@@ -66,13 +67,17 @@ export interface ChatEntry {
 
 export type ConfirmationStatus = 'pending' | 'confirmed' | 'canceled' | 'rejected'
 
+export type PreparationDetails = {
+  args: Record<string, any>,
+  preparation_id: string,
+  extra: Record<string, any>
+}
+
 export interface ConfirmationEntry {
   id: string,
   user_id: string,
   status: ConfirmationStatus,
-  details: {
-    prepare_animal_store?: object
-  }
+  details: Record<PreparationTypes|string, PreparationDetails[]>
 }
 
 export async function putChatEntry(data: {

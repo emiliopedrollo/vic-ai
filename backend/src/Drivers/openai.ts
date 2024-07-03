@@ -11,6 +11,7 @@ import { Messages } from 'openai/resources/beta/threads'
 import Message = Messages.Message
 import RunStatus = Threads.RunStatus
 import { Context } from '#/Context'
+import { compareObjectsWithCallbacks } from '#/utils'
 
 dotenv.config()
 
@@ -66,8 +67,14 @@ export class OpenAiChat implements ChatDriver
 
     const assistant: Assistant = await this.openai.beta.assistants.retrieve(this.assistant_id)
 
+    const toolDiffs = compareObjectsWithCallbacks(assistant.tools, assistantDefinition.tools, {
+      onRemove(key, value) {
+          if ((key === 'description') && (value === null)) { return false } // ignore null description
+      },
+    })
+
     const needsUpdate = (
-      (JSON.stringify(assistant.tools) != JSON.stringify(assistantDefinition.tools)) ||
+      Object.entries(toolDiffs).length > 0 ||
       (assistant.instructions != assistantDefinition.instructions) ||
       (assistant.model != assistantDefinition.model) ||
       (assistant.name != assistantDefinition.name)

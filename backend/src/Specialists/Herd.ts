@@ -1,15 +1,86 @@
 import { HandlerOptions, Specialist, ToolsDefinition } from '#/Specialists/Specialist'
 import { ServiceFactory } from '#/Services/factory'
 import { InstructorSpecialist } from '#/Specialists/specialist-interface'
-
 export class Herd extends Specialist implements InstructorSpecialist{
 
   constructor(protected services: ServiceFactory) {
     super()
   }
+
+  protected breeds: Record<string, string> = {
+    'aberdeen-angus': 'Aberdeen Angus',
+    'braford': 'Braford',
+    'brahman': 'Brahman',
+    'brangus': 'Brangus',
+    'brown-swiss': 'Pardo-Suiço',
+    'charolais': 'Charolês',
+    'devon': 'Devon',
+    'girolando': 'Girolando',
+    'guzera-leiteiro': 'Guzerá Leiteiro',
+    'gyr': 'Gir Leiteiro',
+    'hereford': 'Hereford',
+    'holstein': 'Holandesa',
+    'inra-95': 'Inra 95',
+    'jerseys': 'Jersey',
+    'jersolando': 'Jersolando',
+    'kiwicross': 'Kiwicross',
+    'montbeliarde': 'Montbéliard',
+    'nelore': 'Nelore',
+    'red-angus': 'Red Angus',
+    'senepol': 'Senepol',
+    'simmental': 'Simental',
+    'sindi': 'Sindi',
+    'speckle-park': 'Speckle Park',
+    'swedish-red-and-white': 'Sueca Vermelha',
+    'wagyu': 'Wagyu',
+  }
+
+  private prepare_animal_update = async (options: HandlerOptions) => {
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_animal_update',
+      required_arguments: ['slug'],
+      args: {
+        ...options.args,
+        breed: Object.keys(this.breeds).find((k) => this.breeds[k] === options.args.breed)
+      },
+      extra:{
+        breed: options.args.breed
+      },
+    })
+
+  }
   private prepare_animal_store = async (options: HandlerOptions) => {
 
-    const confirmation_type = 'prepare_animal_store'
+    const batches = (await this.services.herd().listBatches({
+      per_page: 99999
+    }))?.data || []
+
+
+    if (! batches.map((batch:any) => batch.slug).includes(options.args.batch_slug)) {
+      return {
+        status: "Error",
+        details: "The provided batch does not exists or isn't active",
+        valid_options: batches.map( (batch:any) => ({ name: batch.name, slug: batch.slug }))
+      }
+    }
+
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_animal_store',
+      required_arguments: ['earring','birth','batch_slug'],
+      args: {
+        ...options.args,
+        breed: Object.keys(this.breeds).find((k) => this.breeds[k] === options.args.breed),
+      },
+      extra:{
+        breed: options.args.breed,
+        batch: batches.find((batch:any) => batch.slug === options.args.batch_slug).name,
+      },
+    })
+  }
+
+  private prepare_animals_move = async (options: HandlerOptions) => {
 
     const batches = (await this.services.herd().listBatches({
       per_page: 99999
@@ -23,18 +94,38 @@ export class Herd extends Specialist implements InstructorSpecialist{
       }
     }
 
-    const context_args = {
-      args: options.args,
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_animals_move',
+      required_arguments: ['animals', 'batch_slug'],
       extra: {
-        batch: batches.find((batch:any) => batch.slug === options.args.batch_slug).name
+        batch: batches.find((batch:any) => batch.slug === options.args.batch_slug).name,
+      }
+    })
+
+  }
+
+  private prepare_batch_store = async (options: HandlerOptions) => {
+
+    const units = (await this.services.herd().listUnits({
+      per_page: 99999
+    }))?.data || []
+
+    if (! units.map((unit:any) => unit.uuid).includes(options.args.unit_uuid)) {
+      return {
+        status: "Error",
+        details: "The provided unit does not exists or isn't active",
+        valid_options: units.map( (unit:any) => ({ name: unit.name, uuid: unit.uuid }))
       }
     }
 
-    await options.context.createOrExtendConfirmation(confirmation_type, context_args)
-
-    return ({
-      status: "confirm_to_proceed",
-      details: "Require user confirmation to proceed"
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_batch_store',
+      required_arguments: ['name', 'unit_uuid', 'type', 'description'],
+      extra: {
+        unit: units.find((unit:any) => unit.uuid === options.args.unit_uuid).name
+      }
     })
   }
 
@@ -49,6 +140,144 @@ export class Herd extends Specialist implements InstructorSpecialist{
           page: options.args.page
         })
       }
+    },
+    prepare_batch_store: {
+      definition: this.buildDefinition({
+        description: "Create batch within the farm",
+        properties:{
+          name: {
+            type: "string",
+            description: "The name of the batch"
+          },
+          unit_uuid: {
+            type: "string",
+            description: "An existing Farm's unit uuid associated with the batch. Fetch farm"
+          },
+          type: {
+            type: "string",
+            enum: ["bull", "calf", "heifer", "lactation", "dry", "pre-calving"],
+            description: "The purpose and/or type of animals of the batch"
+          },
+          description: {
+            type: "string",
+            description: "The description of the batch"
+          },
+          minimum_production: {
+            type: "number",
+            description: "For lactation batches only. The minimum production acceptable for animals at this batch"
+          },
+          maximum_production: {
+            type: "number",
+            description: "For lactation batches only. The maximum production acceptable for animals at this batch"
+          },
+          milking_per_day: {
+            type: "number",
+            description: "For lactation batches only. The number of milking per day for this batch. Between 1 and 4, inclusive"
+          }
+        },
+        required: ["name", "unit_uuid", "type", "description"]
+      }),
+      handler: this.prepare_batch_store
+    },
+    prepare_animals_move: {
+      definition: this.buildDefinition({
+        description: "Move one or more animal to a desired batch",
+        properties: {
+          animals: {
+            type: "array",
+            items: {
+              type: "string"
+            },
+            description: "An array of animal slugs"
+          },
+          batch_slug: {
+            type: "string",
+            description: "The destination batch"
+          }
+        },
+        required: ['animals', 'batch_slug']
+      }),
+      handler: this.prepare_animals_move
+    },
+    list_animals: {
+      definition: this.buildDefinition({
+        description: "Paginated list the animals available within the farm",
+        properties: {
+          page: { type: "number" },
+          search_filter: {
+            type: "string",
+            description: "Filter results by animals name or earring"
+          },
+          production_status: {
+            type: "string",
+            enum: ["lactating", "dry", "no-status"],
+            description: "Filter results by production status"
+          },
+          reproduction_status: {
+            type: "string",
+            enum: [
+              "calf", "calf-new-born", "empty", "empty-port-delivery", "heifer", "inseminated",
+              "late-inseminated", "male", "pregnant", "prostaglandin", "pregnant-pre-delivery",
+              "waiting-artificial-insemination", "waiting-embryo-transfer",
+              "ia-hormone-implemented", "et-hormone-implemented"
+            ],
+            description: "Filter results by reproduction status"
+          },
+          batch_slug: {
+            type: "string",
+            description: "Filter results by animal current batch"
+          }
+        }
+      }),
+      handler: async (options: HandlerOptions) => {
+        return await this.services.herd().listAnimals({
+          page: options.args.page,
+          filter: options.args.search_filter,
+          reproduction_status: options.args.reproduction_status,
+          production_status: options.args.production_status,
+          batch_slug: options.args.batch_slug,
+        })
+      }
+    },
+
+    prepare_animal_update: {
+      definition: this.buildDefinition({
+        description: "prepare a request fot updating an existing animal withing the farm",
+        properties: {
+          slug: {
+            type: "string",
+            description: "Tha lus is the immutable identifier for the animal. This value cannot be changed and is used only to identify the animal"
+          },
+          earring: {
+            type: "string",
+            description: "The new earring of the animal",
+          },
+          name: {
+            type: "string",
+            description: "The new name of the animal"
+          },
+          breed: {
+            type: "string",
+            enum: Object.values(this.breeds),
+            description: "The new breed of the animal",
+          },
+          birth: {
+            type: "string",
+            format: 'ISO_8601',
+            description: "An ISO_8601 date with optional time for when the animal was born"
+          },
+          birth_weight: {
+            type: "number",
+            description: "The weight, in Kilograms, measured soon after animal birth"
+          },
+          born_at_farm: {
+            type: "boolean",
+            description: "Either or not the animal was born in the farm"
+          },
+        },
+        required: ['slug']
+      }),
+      handler: this.prepare_animal_update
     },
     prepare_animal_store: {
       definition: this.buildDefinition({
@@ -65,12 +294,54 @@ export class Herd extends Specialist implements InstructorSpecialist{
             type: "string",
             description: "The slug for the physical group, set our batch where the animal is. This is **not** the farm slug"
           },
+          is_female: {
+            type: "boolean",
+            description: "Either or not the animal is a female. The default value is `true`"
+          },
+          breed: {
+            type: "string",
+            enum: Object.values(this.breeds),
+            description: "The breed of the animal",
+          },
           birth: {
             type: "string",
+            format: 'ISO_8601',
             description: "An ISO_8601 date with optional time for when the animal was born"
+          },
+          birth_weight: {
+            type: "number",
+            description: "The weight, in Kilograms, measured soon after animal birth"
+          },
+          born_at_farm: {
+            type: "boolean",
+            description: "Either or not the animal was born in the farm"
+          },
+          collar: {
+            type: "string",
+            format: 'numeric',
+            description: "The serial or code of the Cowmed's collar currently attached to the animal"
+          },
+          last_delivery: {
+            type: "string",
+            format: 'ISO_8601',
+            description: "An ISO_8601 date with the last time the animal had a delivery or parturition"
+          },
+          last_service: {
+            type: "string",
+            format: 'ISO_8601',
+            description: "An ISO_8601 date with the last time the animal was serviced (Artificially Inseminated, Embryo Transfer or Natural Breeding)"
+          },
+          last_service_method: {
+            type: "string",
+            enum: ['insemination', 'embryo_transfer', 'natural_breeding'],
+            description: "The type of the last service",
+          },
+          pregnant: {
+            type: "boolean",
+            description: "Either or not the animal is currently pregnant"
           }
         },
-        required: ["earring", "batch_slug"]
+        required: ["earring", "birth", "batch_slug"]
       }),
       handler: this.prepare_animal_store
     },
@@ -128,6 +399,7 @@ export class Herd extends Specialist implements InstructorSpecialist{
   getGlossary = () => {
     // noinspection JSNonASCIINames
     return {
+      "collar": "A coleira da Cowmed é como o sistema coleta dados dos animais. Um animal só pode ter uma coleira por vez e uma coleira só pode estar associada a um animal por vez.",
       "earring": "Este é o brinco do animal. Deve ser um identificador único entre todos os animais ativos na fazenda. É um valor alfanumérico",
       "serviço": "Termo utilizado para denominar serviço de inseminação artificial, transferência embrionária ou monta natural no animal.",
       "del": "Dias em lactação. Também pode aparecer como DIM (days in milking). Esta é a contagem de dias desde a última vez que o animal teve um parto ou uma indução de lactação.",

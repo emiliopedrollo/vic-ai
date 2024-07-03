@@ -24,7 +24,7 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
     list_service_recommendations: {
       definition: this.buildDefinition(),
       handler: async () => ({
-        redirect_action: "You should call 'list_animals_in_heat' to get recommendations."
+        redirect_action: "You should call 'list_animals_in_heat' to get recommendations. You should **not** recommend expired heats."
       })
     }
   })
