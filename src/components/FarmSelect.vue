@@ -52,6 +52,7 @@ Promise.all([
     if (store.activeFarm === null) {
       axios({
         method: 'GET',
+        params: { per_page: 9999 },
         url: `https://${import.meta.env.VITE_COWMED_API_URL}/api/farm/access`
       }).then((response) => {
         if (response.data.data.length === 1) {
