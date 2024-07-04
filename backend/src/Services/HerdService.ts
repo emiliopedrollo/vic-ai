@@ -206,6 +206,10 @@ export class HerdService {
                 is_female: animal.is_female,
                 production_status: animal.production_status.text,
               },
+              collar: {
+                code: animal['collar.code'],
+                status: animal['collar.status'],
+              },
               batch: {
                 name: animal['batch.name'],
                 slug: animal['batch.slug']
@@ -286,6 +290,94 @@ export class HerdService {
         last_insemination_method: getInseminationMethod(options.last_service_method),
         name: options.name,
         pregnant: options.pregnant !== undefined ? options.pregnant : false
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  listCollars = async (options: {
+    page?: number
+    per_page?: number
+  }) => {
+    return request({
+      endpoint: 'list-collars',
+      params: { farm: this.farm },
+      query: {
+        per_page: options.per_page || 10,
+        page: options.page || 1
+      },
+      auth: this.token
+    }).then(res => ({
+      meta: {
+        current_page: res.data.meta.current_page,
+        last_page: res.data.meta.last_page,
+        total_collars_at_farm: res.data.meta.total
+      },
+      data: res.data.data
+        // .filter((batch:any) => batch.type !== 'no-batch')
+        .map((collar: any) => ({
+            code: collar.code,
+            status: collar.status,
+            attached_animal: {
+              name: collar.name,
+              slug: collar.slug,
+              earring: collar.earring,
+              current_batch_name: collar.batch_name
+            },
+            last_collar_data: collar.last_read,
+            attached_at: collar.assignment,
+            detached_at: collar.removal,
+            is_heifer_collar: collar.is_heifer_collar,
+          })
+        )
+    }))
+  }
+
+  attachCollar = async (options: {
+    collar: string,
+    animal: string,
+  }) => {
+
+    return request({
+      endpoint: 'attach-collar',
+      method: 'put',
+      params: { farm: this.farm },
+      auth: this.token,
+      body: {
+        collar_code: options.collar,
+        animal_slug: options.animal,
+        force: true,
+        assignment: getRequestFormatedDate(new Date)
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  detachCollar = async (options: {
+    collar: string
+  }) => {
+
+    return request({
+      endpoint: 'detach-collar',
+      method: 'put',
+      params: { farm: this.farm, collar: options.collar },
+      auth: this.token,
+      body: {
+        date: getRequestFormatedDate(new Date)
       }
     }).then(res => ({
       data: res.data

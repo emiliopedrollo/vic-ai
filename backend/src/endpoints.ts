@@ -31,7 +31,12 @@ export async function request (options: {
       case 'list-batches': return `${prefix}/batch/datatable`
       case 'store-batch': return `${prefix}/batch`
 
+      case 'list-collars': return `${prefix}/collar/datatable`
+      case 'attach-collar': return `${prefix}/collar/animal/attach`
+      case 'detach-collar': return `${prefix}/collar/${options.params?.collar}/detach`
+
       case 'list-infirmary': return `${prefix}/event/datatable/health/group`
+
       case 'list-heats': return `${prefix}/event/datatable/reproduction/heat`
     }
     throw "endpoint not defined"

@@ -4,44 +4,14 @@ import { onUpdated } from 'vue'
 import type { Confirmation, Message } from '@/components/Chat.vue'
 import { info } from '@/logger'
 
-
-// const confirmation: ModelRef<Confirmation|undefined> = defineModel()
-
-// const confirmation: ModelRef<Confirmation> = defineModel() as ModelRef<Confirmation>
-
 const props = defineProps<{
   confirmation: Confirmation | undefined
-  // status: ConfirmationStatus,
-  // type: ConfirmationTypes,
-  // data: object
   ready: boolean
 }>()
-
-// const confirmation = ref<Confirmation|null>(props.confirmation || null)
 
 onUpdated(() => {
   info('updated', props.ready)
 })
-
-// const mapAnimalProperties = (slug: string): string|undefined => {
-//   switch (slug) {
-//     case 'earring': return 'Brinco'
-//     case 'batch_slug': return 'Lote'
-//     case 'name': return 'Nome'
-//     case 'birth': return 'Data de Nascimento'
-//   }
-// }
-
-const last_service_method = (method?: string): string | undefined => {
-  switch (method) {
-    case 'insemination' :
-      return 'Inseminação artificial'
-    case 'embryo_transfer' :
-      return 'Transferência embrionária'
-    case 'natural_breeding' :
-      return 'Monta natural'
-  }
-}
 
 </script>
 

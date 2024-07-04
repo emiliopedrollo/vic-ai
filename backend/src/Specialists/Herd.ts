@@ -128,6 +128,20 @@ export class Herd extends Specialist implements InstructorSpecialist{
       }
     })
   }
+  private prepare_collar_attach = async (options: HandlerOptions) => {
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_collar_attach',
+      required_arguments: ['collar_code', 'animal_slug']
+    })
+  }
+  private prepare_collar_detach = async (options: HandlerOptions) => {
+    return this.createPreparation({
+      ...options,
+      type: 'prepare_collar_detach',
+      required_arguments: ['collar_code']
+    })
+  }
 
   defineTools = (): ToolsDefinition => ({
     list_batches: {
@@ -345,6 +359,47 @@ export class Herd extends Specialist implements InstructorSpecialist{
       }),
       handler: this.prepare_animal_store
     },
+    list_collars: {
+      definition: this.buildDefinition({
+        description: "List all collars in the farm",
+        properties: { page: { type: "number" } }
+      }),
+      handler: async (options: HandlerOptions) => {
+        return await this.services.herd().listCollars({
+          page: options.args.page
+        })
+      }
+    },
+    prepare_to_detach_collar: {
+      definition: this.buildDefinition({
+        description: "Prepare to detach a collar from an animal",
+        properties: {
+          collar_code: {
+            type: "string",
+            description: "The code/serial of the collar to be detached",
+          }
+        },
+        required: ['collar_code']
+      }),
+      handler: this.prepare_collar_detach
+    },
+    prepare_to_attach_collar_to_animal: {
+      definition: this.buildDefinition({
+        description: "Prepare to attach a collar to an animal",
+        properties:{
+          collar_code: {
+            type: "string",
+            description: "The code/serial of the collar to be attached",
+          },
+          animal_slug: {
+            type: "string",
+            description: "The slug of the animal to receive the collar"
+          }
+        },
+        required: ['collar_code', 'animal_slug']
+      }),
+      handler: this.prepare_collar_attach
+    }
   })
 
   getFrequentlyAskedQuestions = () => {

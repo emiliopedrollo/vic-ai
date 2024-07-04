@@ -7,23 +7,21 @@ import StoreAnimal from '@/components/Confirmations/StoreAnimal.vue'
 import UpdateAnimal from '@/components/Confirmations/UpdateAnimal.vue'
 import MoveAnimals from '@/components/Confirmations/MoveAnimals.vue'
 import StoreBatch from '@/components/Confirmations/StoreBatch.vue'
+import AttachCollar from '@/components/Confirmations/AttachCollar.vue'
+import DetachCollar from '@/components/Confirmations/DetachCollar.vue'
 
 
 type AnimalConfirmationTypes = 'prepare_animal_store' | 'prepare_animal_update'
 type BatchConfirmationTypes = 'prepare_batch_store' | 'prepare_animals_move'
-export type ConfirmationTypes = AnimalConfirmationTypes | BatchConfirmationTypes
+type CollarConfirmationTypes = 'prepare_collar_attach' | 'prepare_collar_detach'
+export type ConfirmationTypes = AnimalConfirmationTypes | BatchConfirmationTypes | CollarConfirmationTypes
 
 export type ConfirmationStatus = 'pending' | 'confirmed' | 'canceled' | 'rejected'
 
 const confirmation: ModelRef<Confirmation|undefined> = defineModel()
 
-// const confirmation: ModelRef<Confirmation> = defineModel() as ModelRef<Confirmation>
-
 const props = defineProps<{
   // confirmation: Confirmation|null|undefined
-  // status: ConfirmationStatus,
-  // type: ConfirmationTypes,
-  // data: object
   ready: boolean
 }>()
 
@@ -31,8 +29,6 @@ const emit = defineEmits<{
   (e: 'confirm', confirmation_id: string): void
   (e: 'reject', confirmation_id: string): void
 }>()
-
-// const confirmation = ref<Confirmation|null>(props.confirmation || null)
 
 const status = ref<ConfirmationStatus|null>(confirmation.value?.status || null)
 
@@ -51,23 +47,6 @@ const sendReject = () => {
   if (props.ready) emit('reject', confirmation.value?.id as string)
 }
 
-// const mapAnimalProperties = (slug: string): string|undefined => {
-//   switch (slug) {
-//     case 'earring': return 'Brinco'
-//     case 'batch_slug': return 'Lote'
-//     case 'name': return 'Nome'
-//     case 'birth': return 'Data de Nascimento'
-//   }
-// }
-
-const last_service_method = (method?: string): string|undefined => {
-  switch (method) {
-    case 'insemination' : return 'Inseminação artificial'
-    case 'embryo_transfer' : return 'Transferência embrionária'
-    case 'natural_breeding' : return 'Monta natural'
-  }
-}
-
 </script>
 
 <template>
@@ -80,6 +59,8 @@ const last_service_method = (method?: string): string|undefined => {
       <StoreAnimal v-if="confirmation?.details['prepare_animal_store']" :ready="ready" :confirmation="confirmation" />
       <MoveAnimals v-if="confirmation?.details['prepare_animals_move']" :ready="ready" :confirmation="confirmation" />
       <StoreBatch v-if="confirmation?.details['prepare_batch_store']" :ready="ready" :confirmation="confirmation" />
+      <AttachCollar v-if="confirmation?.details['prepare_collar_attach']" :ready="ready" :confirmation="confirmation" />
+      <DetachCollar v-if="confirmation?.details['prepare_collar_detach']" :ready="ready" :confirmation="confirmation" />
 
       <div v-if="confirmation?.status === 'confirmed'">
         <div class="text-md mt-3">Você confirmou esta requisição.</div>

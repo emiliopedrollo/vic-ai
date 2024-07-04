@@ -84,6 +84,31 @@ export class General extends Specialist {
       }))
     }) || []))]
 
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_collar_attach?.map(async (details): Promise<any> => {
+      if (['animal_slug','collar_code'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.herd().attachCollar({
+        animal: details.args.animal_slug,
+        collar: details.args.collar_code,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_collar_detach?.map(async (details): Promise<any> => {
+      if (['collar_code'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.herd().detachCollar({
+        collar: details.args.collar_code,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
     return results
 
   }
