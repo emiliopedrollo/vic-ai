@@ -271,6 +271,8 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
   //     }
   //   ]
   // }
+  getGlossaryDescription = () =>
+    "Show definitions for terms like DTR, PPI and heat_strength."
   getGlossary = () => {
     return {
       "dtr": "Termo que significa desafio térmico para reprodução, também pode aparecer como TCR (thermal challenge for reproduction). Pode ser 'normal', 'moderado' ou 'intenso'.",

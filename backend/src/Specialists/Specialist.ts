@@ -91,19 +91,23 @@ export abstract class Specialist implements SpecialistInterface {
   }
 
   isOverviewSpecialist(specialist: unknown): specialist is OverviewSpecialist {
-    return (specialist as OverviewSpecialist).getOverview !== undefined
+    return ((specialist as OverviewSpecialist).getOverview !== undefined) &&
+      ((specialist as OverviewSpecialist).getOverviewDescription !== undefined)
   }
 
   isTutorialSpecialist(specialist: unknown): specialist is TutorialSpecialist {
-    return (specialist as TutorialSpecialist).getSoftwareTutorials !== undefined
+    return ((specialist as TutorialSpecialist).getSoftwareTutorials !== undefined) &&
+      ((specialist as TutorialSpecialist).getSoftwareTutorialsDescription !== undefined)
   }
 
   isFAQSpecialist(specialist: unknown): specialist is FAQSpecialist {
-    return (specialist as FAQSpecialist).getFrequentlyAskedQuestions !== undefined
+    return ((specialist as FAQSpecialist).getFrequentlyAskedQuestions !== undefined) &&
+      ((specialist as FAQSpecialist).getFrequentlyAskedQuestionsDescription !== undefined)
   }
 
   isGlossarySpecialist(specialist: unknown): specialist is GlossarySpecialist {
-    return (specialist as GlossarySpecialist).getGlossary !== undefined
+    return ((specialist as GlossarySpecialist).getGlossary !== undefined) &&
+      ((specialist as GlossarySpecialist).getGlossaryDescription !== undefined)
   }
 
   isInstructorSpecialist(specialist: object): specialist is InstructorSpecialist {
@@ -129,7 +133,8 @@ export abstract class Specialist implements SpecialistInterface {
     if (this.isOverviewSpecialist(this)) {
       definitions[`get_${this.constructor.name.toLowerCase()}_overview`] = {
         definition: this.buildDefinition({
-          description: `Get an overview for the concept of ${this.constructor.name.toLowerCase()}`
+          description: `Get an overview for the concept of ${this.constructor.name.toLowerCase()}. ` +
+            (this as OverviewSpecialist).getOverviewDescription()
         }),
         handler: async (): Promise<object> => ({
           overview: (this as OverviewSpecialist).getOverview()
@@ -140,7 +145,8 @@ export abstract class Specialist implements SpecialistInterface {
     if (this.isTutorialSpecialist(this)) {
       definitions[`get_${this.constructor.name.toLowerCase()}_tutorials_for_cowmed_software`] = {
         definition: this.buildDefinition({
-          description: `Get instructions of how to handle ${this.constructor.name.toLowerCase()} as Cowmed software`
+          description: `Get instructions of how to handle ${this.constructor.name.toLowerCase()} as Cowmed software. ` +
+            (this as TutorialSpecialist).getSoftwareTutorialsDescription()
         }),
         handler: async (): Promise<object> => ({
           tutorials: (this as TutorialSpecialist).getSoftwareTutorials()
@@ -151,7 +157,8 @@ export abstract class Specialist implements SpecialistInterface {
     if (this.isFAQSpecialist(this)) {
       definitions[`get_${this.constructor.name.toLowerCase()}_frequently_asked_questions`] = {
         definition: this.buildDefinition({
-          description: `Get frequently asked questions regarding ${this.constructor.name.toLowerCase()}`
+          description: `Get frequently asked questions regarding ${this.constructor.name.toLowerCase()}. ` +
+            (this as FAQSpecialist).getFrequentlyAskedQuestionsDescription()
         }),
         handler: async (): Promise<object> => (this as FAQSpecialist).getFrequentlyAskedQuestions()
       }
@@ -160,7 +167,8 @@ export abstract class Specialist implements SpecialistInterface {
     if (this.isGlossarySpecialist(this)) {
       definitions[`get_${this.constructor.name.toLowerCase()}_glossary`] = {
         definition: this.buildDefinition({
-          description: `Get a collection of definitions related to ${this.constructor.name.toLowerCase()}`
+          description: `Get a collection of definitions related to ${this.constructor.name.toLowerCase()}. ` +
+            (this as GlossarySpecialist).getGlossaryDescription()
         }),
         handler: async (): Promise<object> => (this as GlossarySpecialist).getGlossary()
       }

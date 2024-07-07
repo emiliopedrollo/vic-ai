@@ -185,17 +185,73 @@ export interface Confirmation {
 
 const suggestions = ref<{html: string, text:string}[]>([
     {
-      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
-        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
-      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+      html: '<span class="font-bold text-base">Quais os animais doentes</span></br>' +
+        '<span class="text-sm">que eu tenho que dar atenção hoje</span>',
+      text: 'Quais os animais doentes que eu tenho que dar atenção hoje'
     },{
-      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
-        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
-      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+      html: '<span class="font-bold text-base">Recomendações de cio</span></br>' +
+        '<span class="text-sm">para sêmen sexado hoje</span>',
+      text: 'Recomendações de cio para sêmen sexado hoje'
     },{
-      html: '<span class="font-bold text-base">Me mostre a influência</span></br>' +
-        '<span class="text-sm">dos indicadores alternados do rebanho</span>',
-      text: 'Me mostre a influência dos indicadores alternados de rebanho'
+      html: '<span class="font-bold text-base">Trocas de lote</span></br>' +
+        '<span class="text-sm">de vários animais simultaneamente</span>',
+      text: 'Trocas de lote de vários animais simultaneamente'
+    },{
+      html: '<span class="font-bold text-base">Listar animais com DEL elevado</span></br>' +
+        '<span class="text-sm">considere 200 um DEL acima do normal</span>',
+      text: 'Listar animais com DEL elevado, considere 200 um DEL acima do normal'
+    },{
+      html: '<span class="font-bold text-base">Criar um lote de lactação</span></br>' +
+        '<span class="text-sm">na Unidade Principal da fazenda</span>',
+      text: 'Criar um lote de lactação na Unidade Principal da fazenda'
+    },{
+      html: '<span class="font-bold text-base">Vincular coleira ao animal</span></br>' +
+        '<span class="text-sm">e desvindular coleira antiga</span>',
+      text: 'Vincular coleira ao animal e desvincular coleira antiga'
+    },{
+      html: '<span class="font-bold text-base">Me mostre status de coleiras</span></br>' +
+        '<span class="text-sm">que não estão com status normal</span>',
+      text: 'Me mostre status de coleiras que não estão com status normal'
+    },{
+      html: '<span class="font-bold text-base">Cadastre um animal novo</span></br>' +
+        '<span class="text-sm">e vincule uma coleira a ele</span>',
+      text: 'Cadastre um animal novo e vincule uma coleira a ele'
+    },{
+      html: '<span class="font-bold text-base">Atualize os dados de um animal</span></br>' +
+        '<span class="text-sm">troque o nome e peso ao nascer</span>',
+      text: 'Atualize os dados de um animal, troque o nome e peso ao nascer'
+    },{
+      html: '<span class="font-bold text-base">Listar lotes de produção</span></br>' +
+        '<span class="text-sm">ordenados do mais produtivo ao menos produtivo</span>',
+      text: 'Listar lotes de produção ordenados do mais produtivo ao menos produtivo'
+    },{
+      html: '<span class="font-bold text-base">Confirme um alerta de cio</span></br>' +
+        '<span class="text-sm">e registre uma inseminação artificial</span>',
+      text: 'Confirme um alerta de cio e registre uma inseminação artificial'
+    },{
+      html: '<span class="font-bold text-base">Cadastre uma monta natual</span></br>' +
+        '<span class="text-sm">para ontem a tardinha</span>',
+      text: 'Cadastre uma monta natural para ontem a tardinha'
+    },{
+      html: '<span class="font-bold text-base">O que significa DEL?</span></br>' +
+        '<span class="text-sm">E como isso influência minha estratégia reprodutiva?</span>',
+      text: 'O que significa DEL? E como isso influência minha estratégia reprodutiva?'
+    },{
+      html: '<span class="font-bold text-base">Quais são os tipos de descarte</span></br>' +
+        '<span class="text-sm">que estão disponíveis para rebanho do software cowmed?</span>',
+      text: 'Quais são os tipos de descarte que estão disponíveis para rebanho do software cowmed?'
+    },{
+      html: '<span class="font-bold text-base">Como posso trocar animais de lotes</span></br>' +
+        '<span class="text-sm">no software da cowmed</span>',
+      text: 'Como posso trocar animais de lotes no software da cowmed'
+    },{
+      html: '<span class="font-bold text-base">O que significa DTR?</span></br>' +
+        '<span class="text-sm">E como ele influencia na reprodução do animal?</span>',
+      text: 'O que significa DTR? E como ele influencia na reprodução do animal?'
+    },{
+      html: '<span class="font-bold text-base">O que significa PPI?</span></br>' +
+        '<span class="text-sm">E quais os valores que eu posso esperar encontrar?</span>',
+      text: 'O que significa PPI? E quais os valores que eu posso esperar encontrar?'
     },{
       html: '<span class="font-bold text-base">Olá, qual seu nome?</span></br>' +
         '<span class="text-sm">E em que você pode me ajudar?</span>',

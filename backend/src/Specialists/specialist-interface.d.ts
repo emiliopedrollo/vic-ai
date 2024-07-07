@@ -38,18 +38,22 @@ export type Tool = NamelessTool & {
 
 export interface OverviewSpecialist {
   getOverview: { (): object|string }
+  getOverviewDescription: { (): string }
 }
 
 export interface TutorialSpecialist {
   getSoftwareTutorials: { (): Array<object|string>|object|string }
+  getSoftwareTutorialsDescription: { (): string }
 }
 
 export interface FAQSpecialist {
   getFrequentlyAskedQuestions: { (): Record<string,{question: string, answer: string}[]> }
+  getFrequentlyAskedQuestionsDescription: { (): string }
 }
 
 export interface GlossarySpecialist {
   getGlossary: { (): Record<string, string> }
+  getGlossaryDescription: { (): string }
 }
 
 export interface InstructorSpecialist

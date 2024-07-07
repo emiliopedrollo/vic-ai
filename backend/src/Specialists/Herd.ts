@@ -253,7 +253,6 @@ export class Herd extends Specialist implements InstructorSpecialist{
         })
       }
     },
-
     prepare_animal_update: {
       definition: this.buildDefinition({
         description: "prepare a request fot updating an existing animal withing the farm",
@@ -402,6 +401,9 @@ export class Herd extends Specialist implements InstructorSpecialist{
     }
   })
 
+  getFrequentlyAskedQuestionsDescriptions = () =>
+    "Respond to usual questions such as limit of animals, retroactive data, restriction, etc.."
+
   getFrequentlyAskedQuestions = () => {
     return {
       lotes: [
@@ -451,6 +453,8 @@ export class Herd extends Specialist implements InstructorSpecialist{
       ]
     }
   }
+
+  getGlossaryDescription = () => "Returns the definition of terms like collar, earring, service, del, dea, and others."
   getGlossary = () => {
     // noinspection JSNonASCIINames
     return {
@@ -462,6 +466,9 @@ export class Herd extends Specialist implements InstructorSpecialist{
       "descarte": "Este é o ato de descartar o animal. Geralmente implica abate mas nem sempre é o caso",
     }
   }
+
+  getOverviewDescription = () =>
+    "Return an overview of batches, animals and discards and types of discards on cowmed software."
   getOverview = () => {
     return {
       lotes: [
@@ -494,6 +501,10 @@ export class Herd extends Specialist implements InstructorSpecialist{
       ].join('\n')
     }
   }
+
+  getSoftwareTutorialsDescription = () =>
+    "Show instruction on how to make changes on batches, animals and how to discard animals on cowmed software."
+
   getSoftwareTutorials = () => {
     // noinspection JSNonASCIINames
     return {
