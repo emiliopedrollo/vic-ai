@@ -142,6 +142,24 @@ export class HerdService {
     })
 
   }
+  showAnimalDetails = async (options: {
+    animal: string
+  }) => {
+    return request({
+      endpoint: 'show-animal',
+      method: 'get',
+      params: { farm: this.farm, animal: options.animal },
+      auth: this.token
+    }).then(res => ({
+      data: res.data.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
 
   listAnimals = async (options: {
     filter?: string,

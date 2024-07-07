@@ -24,6 +24,7 @@ export async function request (options: {
       case 'list-units': return `${prefix}/unit/datatable`
 
       case 'list-animals': return `${prefix}/animal/datatable`
+      case 'show-animal': return `${prefix}/animal/${options.params?.animal}`
       case 'store-animal': return `${prefix}/animal`
       case 'update-animal': return `${prefix}/animal/${options.params?.animal}`
       case 'move-animals': return `${prefix}/animal/move-many`
@@ -38,6 +39,9 @@ export async function request (options: {
       case 'list-infirmary': return `${prefix}/event/datatable/health/group`
 
       case 'list-heats': return `${prefix}/event/datatable/reproduction/heat`
+      case 'store-reproduction': return `${prefix}/animal/${options.params?.animal}/event/reproduction`
+      case 'confirm-heat': return `${prefix}/event/reproduction/${options.params?.heat}/confirm-heat`
+      case 'heat-details': return `${prefix}/event/datatable/reproduction/heat/${options.params?.heat}`
     }
     throw "endpoint not defined"
   })()

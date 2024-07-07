@@ -9,12 +9,20 @@ import MoveAnimals from '@/components/Confirmations/MoveAnimals.vue'
 import StoreBatch from '@/components/Confirmations/StoreBatch.vue'
 import AttachCollar from '@/components/Confirmations/AttachCollar.vue'
 import DetachCollar from '@/components/Confirmations/DetachCollar.vue'
+import HeatConfirmation from '@/components/Confirmations/HeatConfirmation.vue'
+import HeatDismissal from '@/components/Confirmations/HeatDismissal.vue'
+import Insemination from '@/components/Confirmations/Insemination.vue'
+import EmbryoTransfer from '@/components/Confirmations/EmbryoTransfer.vue'
+import NaturalBreeding from '@/components/Confirmations/NaturalBreeding.vue'
 
 
 type AnimalConfirmationTypes = 'prepare_animal_store' | 'prepare_animal_update'
 type BatchConfirmationTypes = 'prepare_batch_store' | 'prepare_animals_move'
 type CollarConfirmationTypes = 'prepare_collar_attach' | 'prepare_collar_detach'
-export type ConfirmationTypes = AnimalConfirmationTypes | BatchConfirmationTypes | CollarConfirmationTypes
+type HeatConfirmationTypes = 'prepare_confirm_animal_heat' | 'prepare_dismiss_animal_heat' |
+  'prepare_ia_store' | 'prepare_et_store' | 'prepare_natural_breeding_store'
+export type ConfirmationTypes = AnimalConfirmationTypes | BatchConfirmationTypes |
+  CollarConfirmationTypes | HeatConfirmationTypes
 
 export type ConfirmationStatus = 'pending' | 'confirmed' | 'canceled' | 'rejected'
 
@@ -61,6 +69,11 @@ const sendReject = () => {
       <StoreBatch v-if="confirmation?.details['prepare_batch_store']" :ready="ready" :confirmation="confirmation" />
       <AttachCollar v-if="confirmation?.details['prepare_collar_attach']" :ready="ready" :confirmation="confirmation" />
       <DetachCollar v-if="confirmation?.details['prepare_collar_detach']" :ready="ready" :confirmation="confirmation" />
+      <HeatConfirmation v-if="confirmation?.details['prepare_confirm_animal_heat']" :ready="ready" :confirmation="confirmation" />
+      <HeatDismissal v-if="confirmation?.details['prepare_dismiss_animal_heat']" :ready="ready" :confirmation="confirmation" />
+      <Insemination v-if="confirmation?.details['prepare_ia_store']" :ready="ready" :confirmation="confirmation" />
+      <EmbryoTransfer v-if="confirmation?.details['prepare_et_store']" :ready="ready" :confirmation="confirmation" />
+      <NaturalBreeding v-if="confirmation?.details['prepare_natural_breeding_store']" :ready="ready" :confirmation="confirmation" />
 
       <div v-if="confirmation?.status === 'confirmed'">
         <div class="text-md mt-3">Você confirmou esta requisição.</div>

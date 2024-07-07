@@ -56,6 +56,15 @@ export function getInseminationMethod (service_method?: string) : string|undefin
   }
 }
 
+export function changeTimezone (date: Date, timezone: string) {
+  const local_date = new Date(date.toLocaleString('en-US', {
+    timeZone: timezone
+  }));
+  const diff = date.getTime() - local_date.getTime();
+  return new Date(date.getTime() - diff);
+
+}
+
 
 export function getRequestFormatedDate(date?: Date|string): string | undefined {
   if (date === undefined) {
@@ -69,4 +78,21 @@ export function getRequestFormatedDate(date?: Date|string): string | undefined {
   const day = String(date.getDate()).padStart(2, '0')
 
   return `${year}-${month}-${day}`
+}
+export function getRequestFormatedTimestamp(date?: Date|string): string | undefined {
+  if (date === undefined) {
+    return undefined
+  }
+
+  console.log(date)
+  date = date instanceof Date ? date : new Date(date)
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0') // Months are zero-based, so add 1
+  const day = String(date.getDate()).padStart(2, '0')
+  const hour = date.getUTCHours()
+  const minutes = date.getUTCMinutes()
+  const seconds = date.getUTCSeconds()
+
+  return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}-0000`
 }

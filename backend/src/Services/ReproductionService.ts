@@ -1,4 +1,5 @@
 import { request } from '#/endpoints'
+import { getRequestFormatedTimestamp } from '#/utils'
 
 
 export class ReproductionService {
@@ -150,6 +151,176 @@ export class ReproductionService {
     }
   }
 
+  showHeatDetails = async (options: {
+    heat: string
+  })=> {
+    return request({
+      endpoint: 'heat-details',
+      params: { farm: this.farm, heat: options.heat },
+      auth: this.token,
+    }).then(res => ({
+      data: res.data.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  confirmHeat = async (options: {
+    heat: string
+    heat_intensity?: string,
+    heat_detection_method?: string,
+    heat_signs?: string[],
+    comments?: string,
+  })=> {
+    return request({
+      endpoint: 'confirm-heat',
+      method: 'post',
+      params: { farm: this.farm, heat: options.heat },
+      auth: this.token,
+      body: {
+        action: 'confirm',
+        advanced: (!!options.heat_signs || !!options.heat_detection_method || !!options.heat_intensity) || false,
+        comment: options.comments || null,
+        heat_detection_method: options.heat_detection_method || null,
+        heat_intensity: options.heat_intensity || null,
+        heat_signs: options.heat_signs || []
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+  dismissHeat = async (options: {
+    heat: string
+  })=> {
+    return request({
+      endpoint: 'confirm-heat',
+      method: 'post',
+      params: { farm: this.farm, heat: options.heat },
+      auth: this.token,
+      body: {
+        action: 'confirm-negatively',
+        advanced: false,
+        comment: null,
+        heat_detection_method: null,
+        heat_intensity: null,
+        heat_signs: []
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  storeInsemination = async (options: {
+    animal: string
+    comments?: string,
+    semen_type: string,
+    timestamp?: Date|string
+  })=> {
+    return request({
+      endpoint: 'store-reproduction',
+      method: 'post',
+      params: { farm: this.farm, animal: options.animal },
+      auth: this.token,
+      body: {
+        comment: options.comments,
+        event_code: 'reproduction.inseminated',
+        timestamp: getRequestFormatedTimestamp(options.timestamp || new Date),
+        inseminator_id: null,
+        semen: {
+          bull_semen_id: null,
+          semen_type: options.semen_type
+        }
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  storeEmbryoTransfer = async (options: {
+    animal: string
+    comments?: string,
+    donor?: string,
+    embryo_type?: string,
+    timestamp?: Date|string
+  })=> {
+    return request({
+      endpoint: 'store-reproduction',
+      method: 'post',
+      params: { farm: this.farm, animal: options.animal },
+      auth: this.token,
+      body: {
+        comment: options.comments,
+        donor: options.donor,
+        embryo_type: options.embryo_type,
+        event_code: 'reproduction.embryo_transfer',
+        timestamp: getRequestFormatedTimestamp(options.timestamp || new Date),
+        inseminator_id: null,
+        semen: {
+          bull_semen_id: null,
+        }
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
+  storeNaturalBreeding = async (options: {
+    animal: string
+    comments?: string,
+    timestamp?: Date|string
+  })=> {
+    return request({
+      endpoint: 'store-reproduction',
+      method: 'post',
+      params: { farm: this.farm, animal: options.animal },
+      auth: this.token,
+      body: {
+        comment: options.comments,
+        event_code: 'reproduction.natural_breeding',
+        timestamp: getRequestFormatedTimestamp(options.timestamp || new Date),
+        semen: {
+          bull_semen_id: null,
+        }
+      }
+    }).then(res => ({
+      data: res.data
+    })).catch(e => {
+      return {
+        status: 'Error',
+        message: e.response.data.error.message,
+        details: e.response.data.error.details
+      }
+    })
+  }
+
   listAnimalsInHeat = async (options: {
     page?: number
     per_page?: number
@@ -204,6 +375,7 @@ export class ReproductionService {
             this.reduceServiceRecommendation(sexed_from_date, sexed_until_date)
 
           return {
+            heat_id: entry['slug'],
             heat_strength: entry['heat_strength'],
             heat_timestamp: entry['timestamp'],
             heat_confirmed_by_human: entry['confirmed_as'],

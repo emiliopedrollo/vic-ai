@@ -32,8 +32,11 @@ export type FunctionProperty = {
 export type AnimalPreparationTypes = "prepare_animal_store" | "prepare_animal_update"
 export type BatchPreparationTypes = "prepare_batch_store" | "prepare_animals_move"
 export type CollarPreparationTypes = "prepare_collar_attach" | "prepare_collar_detach"
+export type HeatPreparationTypes = "prepare_confirm_animal_heat" | "prepare_dismiss_animal_heat" |
+  "prepare_ia_store" | "prepare_et_store" | "prepare_natural_breeding_store"
 
-export type PreparationTypes = AnimalPreparationTypes | BatchPreparationTypes | CollarPreparationTypes
+export type PreparationTypes = AnimalPreparationTypes | BatchPreparationTypes |
+  CollarPreparationTypes | HeatPreparationTypes
 
 export abstract class Specialist implements SpecialistInterface {
 

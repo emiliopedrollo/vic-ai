@@ -115,7 +115,8 @@ export class Chat implements ChatDef {
       `The current date is ${(new Date).toLocaleDateString('pt-BR', {
         timeZone: 'America/Sao_Paulo',
         timeZoneName: 'short'
-      })}`,
+      })} and the user's timezone is America/Sao_Paulo.`,
+      "When dealing with dates, always include the timezone.",
       "**Never** assume you know what time or date is it, always call `get_current_time`.",
       "Refrain from using terms from languages other than the user unless requested.",
       "**Always** ask for confirmation before storing, updating and deleting anything.",

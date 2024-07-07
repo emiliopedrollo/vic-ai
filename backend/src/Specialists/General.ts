@@ -109,6 +109,72 @@ export class General extends Specialist {
       }))
     }) || []))]
 
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_confirm_animal_heat?.map(async (details): Promise<any> => {
+      if (['heat_id'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.reproduction().confirmHeat({
+        ...details.args,
+        heat: details.args.heat_id,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_dismiss_animal_heat?.map(async (details): Promise<any> => {
+      if (['heat_id'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.reproduction().dismissHeat({
+        ...details.args,
+        heat: details.args.heat_id,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_ia_store?.map(async (details): Promise<any> => {
+      if (['animal_slug', 'semen_type'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.reproduction().storeInsemination({
+        ...details.args,
+        animal: details.args.animal_slug,
+        semen_type: details.args.semen_type,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_et_store?.map(async (details): Promise<any> => {
+      if (['animal_slug'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.reproduction().storeEmbryoTransfer({
+        ...details.args,
+        animal: details.args.animal_slug,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
+    results = [...results, ...(await Promise.all(confirmation?.details.prepare_natural_breeding_store?.map(async (details): Promise<any> => {
+      if (['animal_slug'].some(key => details.args[key] === undefined)) {
+        return { status: 'error', details: `missing required keys` }
+      }
+      return this.services.reproduction().storeNaturalBreeding({
+        ...details.args,
+        animal: details.args.animal_slug,
+      }).then((data) => ({
+        preparation_id: details.preparation_id,
+        result: data
+      }))
+    }) || []))]
+
     return results
 
   }

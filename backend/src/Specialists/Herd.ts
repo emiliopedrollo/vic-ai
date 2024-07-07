@@ -277,7 +277,7 @@ export class Herd extends Specialist implements InstructorSpecialist{
           },
           birth: {
             type: "string",
-            format: 'ISO_8601',
+            format: 'ISO_8601 with timezone',
             description: "An ISO_8601 date with optional time for when the animal was born"
           },
           birth_weight: {
@@ -319,7 +319,7 @@ export class Herd extends Specialist implements InstructorSpecialist{
           },
           birth: {
             type: "string",
-            format: 'ISO_8601',
+            format: 'ISO_8601 with timezone',
             description: "An ISO_8601 date with optional time for when the animal was born"
           },
           birth_weight: {
@@ -337,12 +337,12 @@ export class Herd extends Specialist implements InstructorSpecialist{
           },
           last_delivery: {
             type: "string",
-            format: 'ISO_8601',
+            format: 'ISO_8601 with timezone',
             description: "An ISO_8601 date with the last time the animal had a delivery or parturition"
           },
           last_service: {
             type: "string",
-            format: 'ISO_8601',
+            format: 'ISO_8601 with timezone',
             description: "An ISO_8601 date with the last time the animal was serviced (Artificially Inseminated, Embryo Transfer or Natural Breeding)"
           },
           last_service_method: {
