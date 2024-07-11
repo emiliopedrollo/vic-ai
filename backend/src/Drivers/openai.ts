@@ -23,11 +23,14 @@ export class OpenAiChat implements ChatDriver
   private readonly openai: OpenAI
 
   private readonly assistant_id: string
+  private readonly vector_store_ids: string[]
   private thread_id?: string
 
   constructor(chat: Chat) {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     this.organization = process.env.OPENAI_ORGANIZATION || '';
+    this.vector_store_ids = (process.env.OPENAI_VECTOR_STORE_IDS || '')
+      .split(',').filter(e => !!e)
     this.chat = chat
     this.openai = new OpenAI({
       apiKey: this.apiKey,
@@ -62,7 +65,11 @@ export class OpenAiChat implements ChatDriver
       name: "Vic",
       model: 'gpt-3.5-turbo',
       instructions: this.chat.defaultAssistantInstructions(),
-      tools: this.chat.specialist.getAllTools(),
+      tools: [
+        ...(this.chat.specialist.getAllTools()),
+        { type: "file_search" }
+      ],
+      tool_resources: { file_search: { vector_store_ids: this.vector_store_ids } }
     }
 
     const assistant: Assistant = await this.openai.beta.assistants.retrieve(this.assistant_id)
