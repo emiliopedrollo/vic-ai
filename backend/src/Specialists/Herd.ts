@@ -218,9 +218,13 @@ export class Herd extends Specialist implements InstructorSpecialist{
         description: "Paginated list the animals available within the farm",
         properties: {
           page: { type: "number" },
-          search_filter: {
+          name_filter: {
             type: "string",
-            description: "Filter results by animals name or earring"
+            description: "Filter results by animal name"
+          },
+          earring_filter: {
+            type: "string",
+            description: "Filter results by animal earring"
           },
           production_status: {
             type: "string",
@@ -246,7 +250,7 @@ export class Herd extends Specialist implements InstructorSpecialist{
       handler: async (options: HandlerOptions) => {
         return await this.services.herd().listAnimals({
           page: options.args.page,
-          filter: options.args.search_filter,
+          filter: options.args.earring_filter || options.args.name_filter,
           reproduction_status: options.args.reproduction_status,
           production_status: options.args.production_status,
           batch_slug: options.args.batch_slug,
