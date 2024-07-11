@@ -1,5 +1,5 @@
 import { request } from '#/endpoints'
-import { getInseminationMethod, getRequestFormatedDate } from '#/utils'
+import { getInseminationMethod, getRequestFormatedDate, getRequestFormatedTimestamp } from '#/utils'
 
 
 export class HerdService {
@@ -129,7 +129,8 @@ export class HerdService {
       auth: this.token,
       body: {
         batch_slug: options.batch_slug,
-        animals: options.animals
+        animals: options.animals,
+        assignment: getRequestFormatedTimestamp(new Date)
       }
     }).then(res => ({
       data: res.data
