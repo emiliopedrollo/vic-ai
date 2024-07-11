@@ -60,6 +60,10 @@ const last_service_method = (method?: string): string | undefined => {
           }) }}
           </div>
         </div>
+        <div v-if="animal.args.birth_weight" class="w-full flex flex-row gap-4 justify-space-between">
+          <div>Peso ao nascer:</div>
+          <div>{{ animal.args.birth_weight }} Kg</div>
+        </div>
         <div v-if="animal.args.pregnant" class="w-full flex flex-row gap-4 justify-space-between">
           <div>Prenhe:</div>
           <div>{{ animal.args.pregnant ? 'Sim' : 'Não' }}</div>
