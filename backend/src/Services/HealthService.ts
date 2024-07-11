@@ -46,10 +46,10 @@ export class HealthService {
               health_status: entry.health_status.status,
               health_recent_change: entry.health_change,
               breathing_indicator: entry.breathing_indicator?.status,
-              diagnostic_events: entry.diagnostic_events.map((diagnostic: {
+              diagnostics: entry.diagnostic_events.map((diagnostic: {
                 name: string,
                 text: string
-              }) => diagnostic.name),
+              }) => diagnostic.text),
               days_in_infirmary: parseInt(entry.infirmary_time),
               days_in_the_same_status: parseInt(entry.status_time),
             }))
