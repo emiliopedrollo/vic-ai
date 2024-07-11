@@ -250,6 +250,7 @@ export class Herd extends Specialist implements InstructorSpecialist{
       handler: async (options: HandlerOptions) => {
         return await this.services.herd().listAnimals({
           page: options.args.page,
+          per_page: 200,
           filter: options.args.earring_filter || options.args.name_filter,
           reproduction_status: options.args.reproduction_status,
           production_status: options.args.production_status,
