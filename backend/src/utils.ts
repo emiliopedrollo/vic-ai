@@ -94,7 +94,7 @@ export function getRequestFormatedTimestamp(date?: Date|string): string | undefi
   const minutes = date.getUTCMinutes().toString().padStart(2, '0')
   const seconds = date.getUTCSeconds().toString().padStart(2, '0')
 
-  const formatted = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}-0000`
+  const formatted = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}+0000`
 
   console.log('FORMATTED DATE', formatted)
 
