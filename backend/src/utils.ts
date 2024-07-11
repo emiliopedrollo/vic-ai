@@ -90,9 +90,9 @@ export function getRequestFormatedTimestamp(date?: Date|string): string | undefi
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0') // Months are zero-based, so add 1
   const day = String(date.getDate()).padStart(2, '0')
-  const hour = date.getUTCHours()
-  const minutes = date.getUTCMinutes()
-  const seconds = date.getUTCSeconds()
+  const hour = date.getUTCHours().toString().padStart(2, '0')
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0')
+  const seconds = date.getUTCSeconds().toString().padStart(2, '0')
 
   const formatted = `${year}-${month}-${day} ${hour}:${minutes}:${seconds}-0000`
 
