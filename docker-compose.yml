@@ -41,7 +41,7 @@ services:
       VITE_WEBSOCKET_HOST: 'ws://127.0.0.1:${PORT:-3001}'
     working_dir: '/home/node/app'
     ports:
-      - '5173:5173'
+      - '4173:4173'
     volumes:
       - './:/home/node/app'
     command: ['yarn', 'run', 'dev', '--host']
