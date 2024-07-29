@@ -22,7 +22,7 @@ const childChat = ref<typeof Chat>()
 const currentChatId = ref<string | null>(null)
 const dev = ref<boolean>(import.meta.env.DEV)
 const requested_llm = ref<LLM>('Padrão')
-let isSidebarVisible = ref<boolean>(false)
+let isSidebarVisible = ref<boolean>(window.innerWidth > 900)
 
 const updateChatList = () => {
   chatList.value = chatStore.value?.getChatData() || []
@@ -71,34 +71,26 @@ function updateCurrentChatId(id: string | null) {
 
 function toggleSidebar() {
   isSidebarVisible.value = !isSidebarVisible.value
-  
 }
-(function (){
-  const width = window.innerWidth
-  console.log(width)
-  if(width > 900){
-    isSidebarVisible.value = true
-  }
-})()
 </script>
 
 <template>
   <main>
     <FarmSelect v-if="store.activeFarm === null" />
     <div v-else class="flex flex-row h-screen">
-      <div v-if="isSidebarVisible" class="flex flex-col w-72 md:min-w-72  md:flex">
+      <div v-if="isSidebarVisible" class="flex flex-col w-72 md:min-w-72 md:flex">
         <div
           class="dark:bg-[#808080] bg-[#FFFFFF] dark:text-neutral-50 text-[#666666] text-sm px-2.5 py-5 font-bold"
         >
           <h1>Vic IA 2.0</h1>
           <button @click="toggleSidebar" class="w-5 h-5 float float-end">
-            <svg>
-              <use xlink:href="/sidebar.svg#sidebar" href="/sidebar.svg#sidebar" />
+            <svg style="width: 100%; height: auto">
+              <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
             </svg>
           </button>
         </div>
         <div
-          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between"
+          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-gray"
         >
           <div>
             <div class="flex justify-space-between align-center mb-3">
@@ -116,7 +108,7 @@ function toggleSidebar() {
                   v-for="chat in chatList"
                   class="rounded-[8px] cursor-pointer mt-2 group flex align-center justify-space-between select-none"
                   :class="{
-                    'dark:bg-[#8F8F8F]': chat.id === currentChatId,
+                    'dark:bg-[#565656]': chat.id === currentChatId,
                     'dark:bg-[#808080]': chat.id !== currentChatId,
                     'bg-[#FFFFFF]': chat.id === currentChatId,
                     'bg-[#FAFAFA]': chat.id !== currentChatId
@@ -141,7 +133,7 @@ function toggleSidebar() {
             </div>
             <div v-else>Você ainda não tem nenhuma conversa</div>
           </div>
-          <div>
+          <div class="pt-11">
             <a class="text-[#BF2939] dark:text-white" href="/logout">
               <svg class="w-6 h-5 inline-block align-middle mr-1">
                 <use xlink:href="/exit.svg#exit" href="/exit.svg#exit" />
@@ -153,10 +145,10 @@ function toggleSidebar() {
       </div>
       <div class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]">
         <div class="flex flex-row space-x-4">
-          <div v-if="!isSidebarVisible" class="flex items-center px-2.5 py-2.5">
+          <div v-if="!isSidebarVisible" class="flex items-center px-2.5 py-2.5 top-1 relative">
             <button @click="toggleSidebar" class="text-white w-5 h-5">
-              <svg>
-                <use xlink:href="/sidebar.svg#sidebar" href="/sidebar.svg#sidebar" />
+              <svg style="width: 100%; height: auto">
+                <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
               </svg>
             </button>
           </div>

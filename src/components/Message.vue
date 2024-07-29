@@ -26,7 +26,7 @@ defineComponent({
   >
     <img v-if="role === 'assistant'" src="\vic.svg" alt="VIC" class="me-1.5 w-[70px]"/>
     <div
-      class="p-4 rounded-t-[8px] text-base"
+      class="p-1 rounded-t-[8px] text-base"
       :class="{
         'bg-[#DEF1F9]': role === 'assistant',  'text-[#4D4D4D]': role === 'assistant',  'rounded-br-[8px]': role === 'assistant',
         'bg-[#D6EDD4]': role !== 'assistant', 'text-[#333333]': role !== 'assistant', 'rounded-bl-[8px]': role !== 'assistant',

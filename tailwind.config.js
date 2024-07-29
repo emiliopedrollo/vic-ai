@@ -21,7 +21,7 @@ export default {
               borderRadius: '9999px'
             },
             '&::-webkit-scrollbar-track': {
-              background: '#e0e0e0',
+              background: '#808080',
               borderRadius: '9999px'
             }
           }

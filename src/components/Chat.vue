@@ -363,7 +363,7 @@ function rejectRequest(confirmation_id: string) {
 </script>
 
 <template>
-  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow">
+  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow overflow-x-auto scroll-px-0">
     <div
       ref="chatArea"
       class="text-white mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3 overflow-y-auto flex-grow scrollbar-gray"
@@ -379,12 +379,12 @@ function rejectRequest(confirmation_id: string) {
           v-model="confirmations[message?.metadata['confirmation']]"
         />
       </div>
-      <div v-if="Array.from(messages).length === 0" class="h-full">
+      <div v-if="Array.from(messages).length === 0" class="flex justify-center items-center h-screen">
         <div class="flex flex-col h-full justify-center">
           <div
             class="self-center bg-[#FFFFFF] dark:bg-[#4D4D4D] rounded-full w-[100px] h-[100px] text-center"
           >
-            <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello" />
+            <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello" />  
           </div>
           <div class="self-center text-2xl mt-12 text-[#666666] dark:text-white">
             Como posso te ajudar?
