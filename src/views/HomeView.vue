@@ -97,7 +97,7 @@ function toggleSidebar() {
               <h2 class="text-2xl font-bold">Chats</h2>
               <span
                 @click="newChat"
-                class="bg-[#59B834] dark:!text-white !text-white rounded-[8px] px-2 py-1 cursor-pointer select-none"
+                class="bg-[#59B834] hover:bg-green-500 dark:!text-white !text-white rounded-[8px] px-2 py-1 cursor-pointer select-none"
                 >Novo chat</span
               >
             </div>

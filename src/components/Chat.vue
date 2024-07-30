@@ -397,26 +397,27 @@ function rejectRequest(confirmation_id: string) {
           v-model="confirmations[message?.metadata['confirmation']]"
         />
       </div>
-      <div v-if="Array.from(messages).length === 0" class="flex justify-center items-center h-screen">
+      <div
+        v-if="Array.from(messages).length === 0"
+        class="flex justify-center items-center h-screen"
+      >
         <div class="flex flex-col h-full justify-center">
           <div
             class="self-center bg-[#FFFFFF] dark:bg-[#4D4D4D] rounded-full w-[100px] h-[100px] text-center"
           >
-            <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello" />  
+            <img class="h-[100px] inline-block" src="\hello.svg" alt="Vic says Hello" />
           </div>
           <div class="self-center text-2xl mt-12 text-[#666666] dark:text-white">
             Como posso te ajudar?
           </div>
-          <div
-            class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20"
-          >
+          <div class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">
             <div
               v-for="(suggestion, index) in suggestions.slice(0, 4)"
               :key="index"
               class="text-center text-[#808080] dark:text-white"
             >
               <div
-                class="p-4 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer"
+                class="p-4 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer hover:bg-gray-400"
                 v-on:click="startChatWithText(suggestion.text)"
               >
                 <span class="font-500 text-base" v-html="suggestion.html"></span>
@@ -426,10 +427,10 @@ function rejectRequest(confirmation_id: string) {
         </div>
       </div>
     </div>
-    <div class="
-      dark:text-neutral-50 text-[#808080] font-bold ps-3 pb-1
-    ">
-      <span class="transition-opacity" :class="{'opacity-0': state !== 'processing'}">Vic está digitando...</span>
+    <div class="dark:text-neutral-50 text-[#808080] font-bold ps-3 pb-1">
+      <span class="transition-opacity" :class="{ 'opacity-0': state !== 'processing' }"
+        >Vic está digitando...</span
+      >
     </div>
     <form
       @submit.prevent="send"
@@ -447,7 +448,7 @@ function rejectRequest(confirmation_id: string) {
       <input
         type="submit"
         :value="('Enviar ' + (!chatId && props.llm !== 'Padrão' ? `[${props.llm}]` : '')).trim()"
-        class="px-4 py-3 rounded-[8px] cursor-pointer"
+        class="px-4 py-3 rounded-[8px] cursor-pointer hover:bg-green-500"
         :class="{
           'bg-[#F2F2F2]': state !== 'ready',
           'dark:bg-[#999999]': state !== 'ready',
