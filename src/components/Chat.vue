@@ -414,34 +414,40 @@ function rejectRequest(confirmation_id: string) {
         >Vic está digitando...</span
       >
     </div>
-    <form
-      @submit.prevent="send"
-      class="flex align-content-space-between gap-2 p-4 dark:bg-[#333333] bg-[#FFFFFF]"
-    >
-      <input
-        type="text"
-        ref="inputMessage"
-        :autofocus="true"
-        class="px-3 flex-grow min-w-1 dark:text-white focus:outline-none focus:border-none"
-        :readonly="state !== 'ready'"
-        placeholder="Escreva sua mensagem aqui"
-        v-model="message"
-      />
-      <input
-        type="submit"
-        :value="('Enviar ' + (!chatId && props.llm !== 'Padrão' ? `[${props.llm}]` : '')).trim()"
-        class="px-4 py-3 rounded-[8px] cursor-pointer hover:bg-green-500"
-        :class="{
-          'bg-[#F2F2F2]': state !== 'ready',
-          'dark:bg-[#999999]': state !== 'ready',
-          '!text-[#808080]': state !== 'ready',
-          'dark:!text-[#F2F2F2]': state !== 'ready',
-          'dark:!text-white': state === 'ready',
-          'bg-[#59B834]': state === 'ready',
-          '!text-white': state === 'ready'
-        }"
-        :disabled="state !== 'ready'"
-      />
-    </form>
+    <div>
+      <form
+        @submit.prevent="send"
+        class="flex align-content-space-between gap-2 p-4 dark:bg-[#333333] bg-[#FFFFFF]"
+      >
+        <input
+          type="text"
+          ref="inputMessage"
+          :autofocus="true"
+          class="px-3 flex-grow min-w-1 dark:text-white focus:outline-none focus:border-none"
+          :readonly="state !== 'ready'"
+          placeholder="Escreva sua mensagem aqui"
+          v-model="message"
+        />
+
+        <input
+          type="submit"
+          :value="('Enviar ' + (!chatId && props.llm !== 'Padrão' ? `[${props.llm}]` : '')).trim()"
+          class="px-4 py-3 rounded-[8px] cursor-pointer hover:bg-green-500"
+          :class="{
+            'bg-[#F2F2F2]': state !== 'ready',
+            'dark:bg-[#999999]': state !== 'ready',
+            '!text-[#808080]': state !== 'ready',
+            'dark:!text-[#F2F2F2]': state !== 'ready',
+            'dark:!text-white': state === 'ready',
+            'bg-[#59B834]': state === 'ready',
+            '!text-white': state === 'ready'
+          }"
+          :disabled="state !== 'ready'"
+        />
+      </form>
+    </div>
   </div>
+  <p class="text-neutral-50 self-center px-3 flex-grow min-w-1 text-xs">
+    VIC-IA pode cometer erros. Verifique referências importantes.
+  </p>
 </template>
