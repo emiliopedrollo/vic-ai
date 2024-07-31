@@ -25,16 +25,16 @@ const oauth = useOAuthStore()
 const confirmationUpdate = ref<number>(0)
 let large = ref<boolean>(window.innerWidth > 900)
 const updateSize = () => {
-  large.value = window.innerWidth > 900;
-};
+  large.value = window.innerWidth > 900
+}
 
 onMounted(() => {
-  window.addEventListener('resize', updateSize);
-});
+  window.addEventListener('resize', updateSize)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateSize);
-});
+  window.removeEventListener('resize', updateSize)
+})
 let socket: Socket
 
 const props = defineProps<{
@@ -423,32 +423,40 @@ function rejectRequest(confirmation_id: string) {
             Como posso te ajudar?
           </div>
           <div>
-    <div v-if="large" class="flex flex-row align-stretch flex-wrap gap-5 justify-center align-center mt-8 mb-20">
-      <div v-for="n in 4" :key="n" class="w-1/3 text-center text-[#808080] dark:text-white">
-        <div
-          class="w-full h-full inline-block text-start p-7 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer"
-          v-on:click="startChatWithText(suggestions[n-1].text)"
-        >
-          <span class="font-500 text-base font-bold" v-html="suggestions[n-1].html"></span>
-        </div>
-      </div>
-    </div>
-    <div v-else class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20">
-      <div
-        v-for="(suggestion, index) in suggestions.slice(0, 4)"
-        :key="index"
-        class="text-center text-[#808080] dark:text-white"
-      >
-        <div
-          class="p-4 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer hover:bg-gray-400"
-          v-on:click="startChatWithText(suggestion.text)"
-        >
-          <span class="font-500 text-base" v-html="suggestion.html"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-          
+            <div
+              v-if="large"
+              class="flex flex-row align-stretch flex-wrap gap-5 justify-center align-center mt-8 mb-20"
+            >
+              <div v-for="n in 4" :key="n" class="w-1/3 text-center text-[#808080] dark:text-white">
+                <div
+                  class="w-full h-full inline-block text-start p-7 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer"
+                  v-on:click="startChatWithText(suggestions[n - 1].text)"
+                >
+                  <span
+                    class="font-500 text-base font-bold"
+                    v-html="suggestions[n - 1].html"
+                  ></span>
+                </div>
+              </div>
+            </div>
+            <div
+              v-else
+              class="flex flex-row flex-wrap gap-5 justify-center align-center mt-8 mb-20"
+            >
+              <div
+                v-for="(suggestion, index) in suggestions.slice(0, 4)"
+                :key="index"
+                class="text-center text-[#808080] dark:text-white"
+              >
+                <div
+                  class="p-4 dark:bg-[#999999] bg-[#FFFFFF] rounded-[16px] cursor-pointer hover:bg-gray-400"
+                  v-on:click="startChatWithText(suggestion.text)"
+                >
+                  <span class="font-500 text-base" v-html="suggestion.html"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
