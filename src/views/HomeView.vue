@@ -80,14 +80,17 @@ function toggleSidebar() {
     <div v-else class="flex flex-row h-screen">
       <div v-if="isSidebarVisible" class="flex flex-col w-72 md:min-w-72 md:flex">
         <div
-          class="dark:bg-[#808080] bg-[#FFFFFF] dark:text-neutral-50 text-[#666666] text-sm px-2.5 py-5 font-bold"
+          class="dark:bg-[#808080] bg-[#FFFFFF] dark:text-neutral-50 text-[#666666] text-sm px-2.5 py-5 font-bold flex justify-between"
         >
-          <h1>Vic IA 2.0</h1>
-          <button @click="toggleSidebar" class="w-5 h-5 float float-end">
-            <svg style="width: 100%; height: auto">
-              <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
-            </svg>
-          </button>
+          <div class="font-bold"><h1>Vic IA 2.0</h1></div>
+
+          <div class="w-5 h-5 float float-end">
+            <button @click="toggleSidebar">
+              <svg>
+                <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div
           class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-gray"
