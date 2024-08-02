@@ -136,14 +136,14 @@ function toggleSidebar() {
             </div>
             <div v-else>Você ainda não tem nenhuma conversa</div>
           </div>
-          <div class="pt-11">
-            <a class="text-[#BF2939] dark:text-white" href="/logout">
-              <svg class="w-6 h-5 inline-block align-middle mr-1">
-                <use xlink:href="/exit.svg#exit" href="/exit.svg#exit" />
-              </svg>
-              <span class="font-bold">Sair</span>
-            </a>
-          </div>
+        </div>
+        <div class="p-2">
+          <a class="text-[#BF2939] dark:text-white" href="/logout">
+            <svg class="w-6 h-5 inline-block ">
+              <use xlink:href="/exit.svg#exit" href="/exit.svg#exit" />
+            </svg>
+            <span class="font-bold">Sair</span>
+          </a>
         </div>
       </div>
       <div class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]">
