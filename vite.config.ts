@@ -19,11 +19,28 @@ export default defineConfig({
       },
       manifest: {
         name: 'Vic Cowmed',
+        start_url: '/', 
         display: 'standalone',
         short_name: 'Vic Cowmed',
-        description: "Vic AI Chat App",
+        description: "Chatbot da Vic Cowmed",
         theme_color: '#585654',
         background_color: '#585654',
+        // screenshots: [
+        //   {
+        //     "src": "img/icons/android/android-chrome-512x512.png",
+        //     "sizes": "512x512",
+        //     "type": "image/png",
+        //     "form_factor": "wide",
+        //     "label": "Vic Cowmed"
+        //   },
+        //   {
+        //     "src": "img/icons/android/android-chrome-512x512.png",
+        //     "sizes": "512x512",
+        //     "type": "image/png",
+        //     "form_factor": "narrow",
+        //     "label": "Vic Cowmed"
+        //   }
+        // ],
         icons: [
           {
             "src": "/img/icons/android/android-chrome-48x48.png",
