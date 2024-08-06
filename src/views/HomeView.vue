@@ -23,6 +23,7 @@ const currentChatId = ref<string | null>(null)
 const dev = ref<boolean>(import.meta.env.DEV)
 const requested_llm = ref<LLM>('Padrão')
 let isSidebarVisible = ref<boolean>(window.innerWidth > 900)
+let isMobile = ref<boolean>(window.innerWidth < 768)
 
 const updateChatList = () => {
   chatList.value = chatStore.value?.getChatData() || []
@@ -48,6 +49,9 @@ function selectChat(chat_id: string) {
   const entry = chatList.value.find((item) => item.id === chat_id)
   currentChatId.value = entry?.id || null
   if (entry) childChat.value?.loadChat(chat_id)
+  if(isMobile.value){
+    isSidebarVisible.value = false
+  }
 }
 
 function deleteChat(chat_id: string) {
@@ -63,6 +67,9 @@ function deleteChat(chat_id: string) {
 function newChat() {
   childChat.value?.newChat()
   currentChatId.value = null
+  if(isMobile.value){
+    isSidebarVisible.value = false
+  }
 }
 
 function updateCurrentChatId(id: string | null) {
