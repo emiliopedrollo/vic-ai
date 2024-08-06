@@ -12,7 +12,20 @@ export default {
     function ({ addUtilities }) {
       addUtilities(
         {
-          '.scrollbar-gray': {
+          '.scrollbar-light-gray': {
+            '&::-webkit-scrollbar': {
+              width: '12px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#c1c1c1',
+              borderRadius: '9999px'
+            },
+            '&::-webkit-scrollbar-track': {
+              background: '#F1F1F1',
+              borderRadius: '9999px'
+            }
+          },
+          '.scrollbar-dark-gray': {
             '&::-webkit-scrollbar': {
               width: '12px'
             },
@@ -27,7 +40,7 @@ export default {
           }
         },
         ['responsive']
-      )
+      );
     }
   ]
-}
+};

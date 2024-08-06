@@ -396,7 +396,7 @@ function rejectRequest(confirmation_id: string) {
   <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow overflow-x-auto scroll-px-0">
     <div
       ref="chatArea"
-      class="text-white mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3 overflow-y-auto flex-grow scrollbar-gray"
+      class="text-white mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3 overflow-y-auto flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
       :class="{ 'opacity-0': state === 'loading' }"
     >
       <div v-for="(message, index) in messages" class="flex flex-col">
@@ -498,7 +498,7 @@ function rejectRequest(confirmation_id: string) {
       </form>
     </div>
   </div>
-  <p class="text-neutral-50 self-center p-2 text-xs">
+  <p class="dark:text-neutral-50 text-[#666666] self-center p-2 text-xs">
     VIC-IA pode cometer erros. Verifique referências importantes.
   </p>
 </template>

@@ -84,16 +84,16 @@ function toggleSidebar() {
         >
           <div class="font-bold"><h1>Vic IA 2.0</h1></div>
 
-          <div class="w-5 h-5 float float-end">
-            <button @click="toggleSidebar">
-              <svg>
+          <div class=" bottom-16 relative">
+            <button @click="toggleSidebar" class="float float-end w-5 h-5">
+              <svg class="w-full h-auto dark:text-neutral-50 text-[#666666] fill-current">
                 <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
               </svg>
             </button>
           </div>
         </div>
         <div
-          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-gray"
+          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
         >
           <div>
             <div class="flex justify-space-between align-center mb-3">
@@ -139,7 +139,7 @@ function toggleSidebar() {
         </div>
         <div class="p-2">
           <a class="text-[#BF2939] dark:text-white" href="/logout">
-            <svg class="w-6 h-5 inline-block ">
+            <svg class="w-6 h-5 inline-block">
               <use xlink:href="/exit.svg#exit" href="/exit.svg#exit" />
             </svg>
             <span class="font-bold">Sair</span>
@@ -148,13 +148,14 @@ function toggleSidebar() {
       </div>
       <div class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]">
         <div class="flex flex-row space-x-4">
-          <div v-if="!isSidebarVisible" class="flex items-center px-2.5 py-2.5 top-1 relative">
-            <button @click="toggleSidebar" class="text-white w-5 h-5">
-              <svg style="width: 100%; height: auto">
+          <div v-if="!isSidebarVisible" class="flex items-center px-2.5 py-2.5 bottom-16 relative">
+            <button @click="toggleSidebar" class="w-5 h-5">
+              <svg class="w-full h-auto dark:text-neutral-50 text-[#666666] fill-current">
                 <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
               </svg>
             </button>
           </div>
+
           <div
             @click="changeFarm"
             class="text-md dark:text-neutral-50 text-[#808080] font-bold px-2.5 py-2.5 cursor-pointer inline-block"
@@ -174,7 +175,7 @@ function toggleSidebar() {
               >
                 <ul>
                   <li
-                    v-for="llm in ['Padrão', 'ChatGPT', 'Gemini', 'Titan', 'Parrot']"
+                    v-for="llm in ['Padrão', 'ChatGPT', 'Titan', 'Parrot']"
                     @click="requested_llm = llm as LLM"
                     class="px-3 py-1 w-full cursor-pointer hover:bg-[#222222]"
                   >

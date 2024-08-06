@@ -9,7 +9,7 @@ import LoginButton from '@/components/LoginButton.vue'
 
 <template>
   <div class="h-screen flex">
-      <div class="flex-grow dark:bg-[#666666] bg-[#D6EDD4] grid place-items-center max-xl:hidden">
+      <div class="flex-grow dark:bg-[#666666] bg-[#12530d] grid place-items-center max-xl:hidden">
 
         <img src="/login-dark.svg" class="hidden dark:inline-block" alt="Login"/>
         <img src="/login.svg" class="inline-block dark:hidden" alt="Login"/>
