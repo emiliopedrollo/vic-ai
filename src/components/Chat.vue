@@ -395,7 +395,11 @@ function rejectRequest(confirmation_id: string) {
 </script>
 
 <template>
+<<<<<<< Updated upstream
   <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow">
+=======
+  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow  overflow-x-auto scroll-px-0">
+>>>>>>> Stashed changes
     <div v-if="state == 'loading'" class="flex-col justify-center items-center gap-2 flex flex-grow">
         <svg
           aria-hidden="true"
