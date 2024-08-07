@@ -520,7 +520,7 @@ function rejectRequest(confirmation_id: string) {
       </form>
     </div>
   </div>
-  <p class="dark:text-neutral-50 text-[#666666] self-center p-2 text-xs">
+  <p class="dark:text-neutral-50 text-[#666666] self-center p-2 text-xs overflow-hidden">
     VIC-IA pode cometer erros. Verifique referências importantes.
   </p>
 </template>

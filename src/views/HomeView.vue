@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FarmSelect from '@/components/FarmSelect.vue'
 import { useMainStore } from '@/stores/main'
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import Chat from '@/components/Chat.vue'
 import { useChatStore } from '@/stores/chat'
 import type { LLM } from '@/Interfaces/llm'
@@ -79,6 +79,19 @@ function updateCurrentChatId(id: string | null) {
 function toggleSidebar() {
   isSidebarVisible.value = !isSidebarVisible.value
 }
+
+const handleResize = () => {
+  isSidebarVisible.value = window.innerWidth > 900
+  isMobile.value = window.innerWidth < 640
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
