@@ -23,7 +23,7 @@ const currentChatId = ref<string | null>(null)
 const dev = ref<boolean>(import.meta.env.DEV)
 const requested_llm = ref<LLM>('Padrão')
 let isSidebarVisible = ref<boolean>(window.innerWidth > 900)
-let isMobile = ref<boolean>(window.innerWidth < 768)
+let isMobile = ref<boolean>(window.innerWidth < 640)
 
 const updateChatList = () => {
   chatList.value = chatStore.value?.getChatData() || []
@@ -49,7 +49,7 @@ function selectChat(chat_id: string) {
   const entry = chatList.value.find((item) => item.id === chat_id)
   currentChatId.value = entry?.id || null
   if (entry) childChat.value?.loadChat(chat_id)
-  if(isMobile.value){
+  if (isMobile.value) {
     isSidebarVisible.value = false
   }
 }
@@ -67,7 +67,7 @@ function deleteChat(chat_id: string) {
 function newChat() {
   childChat.value?.newChat()
   currentChatId.value = null
-  if(isMobile.value){
+  if (isMobile.value) {
     isSidebarVisible.value = false
   }
 }
@@ -85,13 +85,13 @@ function toggleSidebar() {
   <main>
     <FarmSelect v-if="store.activeFarm === null" />
     <div v-else class="flex flex-row h-screen">
-      <div v-if="isSidebarVisible" class="flex flex-col w-72 md:min-w-72 md:flex">
+      <div v-if="isSidebarVisible" class="max-sm:w-full flex flex-col w-72 md:min-w-72 md:flex">
         <div
           class="dark:bg-[#808080] bg-[#FFFFFF] dark:text-neutral-50 text-[#666666] text-sm px-2.5 py-5 font-bold flex justify-between"
         >
           <div class="font-bold"><h1>Vic IA 2.0</h1></div>
 
-          <div class=" bottom-16 relative">
+          <div class="bottom-16 relative">
             <button @click="toggleSidebar" class="float float-end w-5 h-5">
               <svg class="w-full h-auto dark:text-neutral-50 text-[#666666] fill-current">
                 <use xlink:href="/sidebar3.svg#sidebar3" href="/sidebar3.svg#sidebar3" />
@@ -103,11 +103,11 @@ function toggleSidebar() {
           class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
         >
           <div>
-            <div class="flex justify-space-between align-center mb-3">
+            <div class="flex flex-col justify-between mb-3">
               <h2 class="text-2xl font-bold">Chats</h2>
               <span
                 @click="newChat"
-                class="bg-[#59B834] hover:bg-green-500 dark:!text-white !text-white rounded-[8px] px-2 py-1 cursor-pointer select-none"
+                class="bg-[#59B834] hover:bg-green-500 dark:!text-white !text-white rounded-[8px] px-4 py-4 cursor-pointer select-none"
                 >Novo chat</span
               >
             </div>
@@ -153,7 +153,10 @@ function toggleSidebar() {
           </a>
         </div>
       </div>
-      <div class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]">
+      <div
+        class="grow flex flex-col bg-[#FAFAFA] dark:bg-[#4D4D4D]"
+        :class="{ 'max-sm:hidden': isSidebarVisible }"
+      >
         <div class="flex flex-row space-x-4">
           <div v-if="!isSidebarVisible" class="flex items-center px-2.5 py-2.5 bottom-16 relative">
             <button @click="toggleSidebar" class="w-5 h-5">
