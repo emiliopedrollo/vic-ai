@@ -113,7 +113,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div
-          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
+          class="dark:bg-[#666666] dark:text-neutral-50 px-2.5 py-3 grow flex flex-col justify-between overflow-y-auto flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
         >
           <div>
             <div class="flex flex-col justify-between mb-3">

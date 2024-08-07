@@ -395,11 +395,7 @@ function rejectRequest(confirmation_id: string) {
 </script>
 
 <template>
-<<<<<<< Updated upstream
-  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow">
-=======
-  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow  overflow-x-auto scroll-px-0">
->>>>>>> Stashed changes
+  <div class="w-full flex flex-col max-h-screen min-h-0 flex-grow overflow-x-auto scroll-px-0">
     <div v-if="state == 'loading'" class="flex-col justify-center items-center gap-2 flex flex-grow">
         <svg
           aria-hidden="true"
@@ -422,7 +418,7 @@ function rejectRequest(confirmation_id: string) {
     <div
       ref="chatArea"
       v-if="state != 'loading'"
-      class="text-white mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3 flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
+      class="text-white mb-2 px-2 pt-4 flex flex-col align-content-space-around gap-3 overflow-y-auto flex-grow scrollbar-light-gray dark:scrollbar-dark-gray"
       :class="{ 'opacity-0': state === 'loading' }"
     >
       <div v-for="(message, index) in messages" class="flex flex-col">
