@@ -24,6 +24,7 @@ import {
 } from '#/dynamo'
 import { uuidv4, uuidv7 } from 'uuidv7'
 import { ServiceFactory } from '#/Services/factory'
+import { ProgressCallbackOptions } from '#/Drivers/chat-driver'
 
 dotenv.config()
 
@@ -34,7 +35,6 @@ const httpsAgent = process.env['AXIOS_CA']
 
 
 export class App {
-
   public defaultDriver: driverType = getDriverTypeFromString(process.env["LLM_BACKEND"]) ||
     (<driverType[]>[ "chatgpt", "titan", "gemini" ])[Math.trunc((Math.random() * 3))]
 
@@ -160,11 +160,19 @@ export class App {
             const metadata =
               JSON.parse(req.data.metadata || '{}') as Record<string, string>
 
-            chat?.send(req.data.message, metadata).then((output) => {
+            chat?.send(req.data.message, metadata, (options?: ProgressCallbackOptions) => {
+              ws.send(JSON.stringify({
+                type: 'response_progress',
+                chat_id: req.data.chat_id,
+                text: options?.text,
+                actions: options?.actions
+              }))
+            }).then((output) => {
               ws.send(JSON.stringify({
                 type: 'response',
                 chat_id: chat.chat_id,
                 text: output.response,
+                actions: output.actions,
                 metadata: output.metadata,
               }))
             })

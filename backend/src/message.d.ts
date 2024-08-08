@@ -1,5 +1,6 @@
 export interface Message {
   role: "system" | "user" | "assistant",
   content: string,
-  metadata?: Record<string, string>|null
+  metadata?: Record<string, string>|null,
+  actions?: string[]
 }

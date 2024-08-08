@@ -100,8 +100,11 @@ export class Socket {
           }
           this.options.handleAuth(data.id, data.success, data.chats)
           break;
+        case 'response_progress':
+          this.options.handleResponseProgress(data.chat_id, data.text, data.actions)
+          break;
         case 'response':
-          this.options.handleResponse(data.chat_id, data.text, data.metadata)
+          this.options.handleResponse(data.chat_id, data.text, data.actions, data.metadata)
           break;
         case 'update_chats':
           this.options.handleUpdateChats(data.chats)
@@ -134,7 +137,8 @@ interface SocketOptions {
   getAuthToken: { (): Promise<string|null> }
   getCurrentFarm: { (): string }
   handleAuth: { (id: string, success: boolean, chats: { id: string, resume: string }[] | null): void }
-  handleResponse: { (chat_id: string, text: string, metadata?: Record<string, string>|null ): void }
+  handleResponseProgress: { (chat_id: string, text?: string, actions?: string[]): void }
+  handleResponse: { (chat_id: string, text: string, actions?: string[], metadata?: Record<string, string>|null ): void }
   handleUpdateChats: { (chats: {id: string, resume: string}[] | null): void }
   handleUnexpectedClose: { (): void }
 }
@@ -153,10 +157,18 @@ interface AuthPackage {
   chats: { id: string, resume: string }[] | null
 }
 
+interface ResponseProgressPackage {
+  type: "response_progress"
+  chat_id: string,
+  text?: string,
+  actions?: string[],
+}
+
 interface ResponsePackage {
   type: "response"
   chat_id: string,
   text: string,
+  actions?: string[],
   metadata?: Record<string, any>|null
 }
 
@@ -176,4 +188,5 @@ interface ConfirmationPackage {
   data: Confirmation
 }
 
-type Package = AuthPackage | ResponsePackage | UpdateChatPackage | ChatHistoryPackage | ConfirmationPackage
+type Package = AuthPackage | ResponseProgressPackage | ResponsePackage |
+  UpdateChatPackage | ChatHistoryPackage | ConfirmationPackage

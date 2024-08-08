@@ -1,19 +1,23 @@
-import { ChatDriver } from '#/Drivers/chat-driver'
+import { ChatDriver, ProgressCallback } from '#/Drivers/chat-driver'
 import { Chat, ChatSendOutput, driverType } from '#/chat'
 import { Message } from '#/message'
 import { Threads } from 'openai/resources/beta'
 import {
   ChatSession,
-  Content, FunctionCall,
-  FunctionDeclarationSchema, FunctionDeclarationSchemaProperty,
-  FunctionDeclarationSchemaType, FunctionResponsePart, GenerateContentResult,
+  Content,
+  FunctionCall,
+  FunctionCallingMode,
+  FunctionDeclarationSchema,
+  FunctionDeclarationSchemaProperty,
+  FunctionDeclarationSchemaType,
+  FunctionResponsePart,
+  GenerateContentResult,
   GoogleGenerativeAI,
   TextPart,
 } from '@google/generative-ai'
-
-import RunStatus = Threads.RunStatus
 import { Context } from '#/Context'
 import { Parameters, ParameterType, Property } from '#/Specialists/specialist-interface'
+import RunStatus = Threads.RunStatus
 
 type GeminiHistoryContent = Content & {
   metadata?: { [k: string]: string }
@@ -154,7 +158,7 @@ export class GeminiChat implements ChatDriver
     return this.run(chat, result, context)
   }
 
-  public send = async (message: string, metadata?: Record<string, string>): Promise<ChatSendOutput> => {
+  public send = async (message: string, metadata?: Record<string, string>, progress?: ProgressCallback): Promise<ChatSendOutput> => {
 
 
     const context = new Context( this.chat.user_id, metadata || {}, {} )

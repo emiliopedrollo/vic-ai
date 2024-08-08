@@ -1,6 +1,6 @@
 import { Chat as ChatDef } from '#/chat'
 import { type Message } from '#/message'
-import { ChatDriver } from '#/Drivers/chat-driver'
+import { ChatDriver, ProgressCallback } from '#/Drivers/chat-driver'
 import { OpenAiChat } from '#/Drivers/openai'
 import { ParrotChat } from '#/Drivers/parrot'
 import {
@@ -33,6 +33,7 @@ export function getDriverTypeFromString(driver?: string): driverType|undefined
 
 export interface ChatSendOutput {
   response: string,
+  actions?: string[],
   metadata?: any
 }
 
@@ -133,8 +134,12 @@ export class Chat implements ChatDef {
     return this.driver.summarize(message)
   }
 
-  send = async (message: string, metadata?: Record<string, string>): Promise<ChatSendOutput> => {
-    return this.driver.send(message, metadata)
+  send = async (message: string, metadata?: Record<string, string>, progress?: ProgressCallback): Promise<ChatSendOutput> => {
+    console.log(`User: ${message}`)
+    return this.driver.send(message, metadata, progress).then((output) => {
+      console.log(`VIC: ${output.response}`)
+      return output
+    })
   }
 
   getMessages = async (): Promise<{status: RunStatus, driver: driverType, messages: Message[]}> => {

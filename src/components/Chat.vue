@@ -65,6 +65,7 @@ const removeChat = (chat_id: string) => {
 
 const loadChat = async (chat_id: string) => {
   if (chat_id !== chatId.value) {
+    state.value = "loading"
     const {
       status,
       driver,
@@ -80,7 +81,6 @@ const loadChat = async (chat_id: string) => {
     //   content: entry.content,
     //   metadata: JSON.stringify(entry.metadata)
     // })))
-    state.value = "loading"
     messages.value = chat_messages
     updateChatId(chat_id)
     await loadConfirmations()
@@ -134,15 +134,34 @@ function setupWebSocket() {
       chats?.setChatData(chatsData)
       state.value = (success) ? 'ready' : 'error'
     },
-    handleResponse: (chat_id: string, text: string, metadata?: Record<string, string>|null ) => {
+    handleResponseProgress: (chat_id: string, text?: string, actions?: string[]) => {
+      debug("PROCESSING")
+      if (chatId.value === null || (chatId.value  === chat_id)) {
+        updateChatId(chat_id)
+
+        const current: Message|undefined = messages.value.find((message) => message.processing)
+
+        messages.value = [...(messages.value).filter((message) => message.processing !== true), {
+          'role': 'assistant',
+          'processing': true,
+          'content': (!!current?.content || !!text) ? (current?.content || '') + (text || '') : undefined,
+          'actions': [...(current?.actions || []), ...(actions || [])],
+        }]
+        console.log('PROGRESS', messages.value)
+        scrollToBottom()
+      }
+    },
+    handleResponse: (chat_id: string, text: string, actions?: string[], metadata?: Record<string, string>|null ) => {
       debug("RESPONSE", text, metadata)
       if (chatId.value === null || (chatId.value  === chat_id)) {
         updateChatId(chat_id)
-        messages.value = [...messages.value, {
+        messages.value = [...(messages.value).filter((message) => message.processing !== true), {
           'role': 'assistant',
           'content': text,
+          'actions': actions,
           'metadata': metadata,
         }]
+        console.log('RESPONSE', messages.value)
         loadConfirmations()
         state.value = 'ready'
         scrollToBottom()
@@ -172,8 +191,10 @@ setupWebSocket()
 
 export interface Message {
   uuid?: string,
+  processing?: boolean,
   role: "user" | "assistant",
-  content: string,
+  content?: string,
+  actions?: string[],
   metadata?: Record<string, string>|null
 }
 
@@ -336,7 +357,7 @@ function rejectRequest(confirmation_id: string) {
           overflow-y-auto flex-grow
         " :class='{"opacity-0": state === "loading"}'>
       <div v-for="(message, index) in messages" class="flex flex-col">
-        <Message :role="message.role" :content="message.content" :key="index" />
+        <Message :role="message.role" :content="message.content" :actions="message.actions" :key="index" />
         <Confirmation
             v-if="message.metadata && message.metadata['confirmation']"
             @confirm="confirmRequest"

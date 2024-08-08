@@ -1,4 +1,4 @@
-import { ChatDriver } from '#/Drivers/chat-driver'
+import { ChatDriver, ProgressCallback } from '#/Drivers/chat-driver'
 import { Chat, ChatSendOutput, driverType } from '#/chat'
 import { Message } from '#/message'
 import { Threads } from 'openai/resources/beta'
@@ -21,7 +21,7 @@ export class ParrotChat implements ChatDriver
       response: this.getExcerpt(message, 30)
     }
   }
-  public send = async (message: string, metadata?: Record<string, string>): Promise<ChatSendOutput> => {
+  public send = async (message: string, metadata?: Record<string, string>, progress?: ProgressCallback): Promise<ChatSendOutput> => {
 
     let [user, farm] = await Promise.all([
       this.chat.service?.user().info(),
