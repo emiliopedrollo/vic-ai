@@ -69,7 +69,7 @@ const action_map: Record<string, string> = {
         'bg-[#D6EDD4]': role !== 'assistant', 'text-[#333333]': role !== 'assistant', 'rounded-bl-[8px]': role !== 'assistant',
       }"
       >
-        <markdown-preview class="m-0 bg-transparent">{{ content }}</markdown-preview>
+        <markdown-preview class="m-0 bg-transparent">{{ content.replace(/【\d+:\d+†source】/g,'') }}</markdown-preview>
         <!--      <pre class="text-pre-wrap">{{ content }}</pre>-->
       </div>
     </div>
