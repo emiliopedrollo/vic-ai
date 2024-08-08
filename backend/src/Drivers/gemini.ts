@@ -13,10 +13,13 @@ import {
   FunctionResponsePart,
   GenerateContentResult,
   GoogleGenerativeAI,
-  TextPart,
+  HarmBlockThreshold,
+  HarmCategory,
+  TextPart
 } from '@google/generative-ai'
 import { Context } from '#/Context'
 import { Parameters, ParameterType, Property } from '#/Specialists/specialist-interface'
+import { sleep } from '#/utils'
 import RunStatus = Threads.RunStatus
 
 type GeminiHistoryContent = Content & {
