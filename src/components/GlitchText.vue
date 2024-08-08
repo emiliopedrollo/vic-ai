@@ -24,10 +24,10 @@ defineProps<{
 
 .glitch {
   position: relative;
-  //font-size: 60px;
+  /* font-size: 60px; */
   font-weight: 700;
   line-height: 1.2;
-  //color: #fff;
+  /* color: #fff; */
   letter-spacing: 5px;
   z-index: 1;
 }
@@ -38,7 +38,7 @@ defineProps<{
   top: 0;
   left: -3px;
   width: 100%;
-  //color: #fff;
+  /* color: #fff; */
   font-weight: inherit;
   background-color: var(--color-background);
   overflow: hidden;
@@ -52,7 +52,7 @@ defineProps<{
   top: 0;
   left: 3px;
   width: 100%;
-  //color: #fff;
+  /* color: #fff; */
   font-weight: inherit;
   background-color: var(--color-background);
   overflow: hidden;

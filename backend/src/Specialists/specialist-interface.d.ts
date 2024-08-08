@@ -26,6 +26,7 @@ type NamelessTool = {
   type: toolTypes,
   function: {
     description?: string,
+    strict?: boolean,
     parameters: Parameters
   }
 }

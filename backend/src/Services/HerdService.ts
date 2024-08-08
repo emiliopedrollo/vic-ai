@@ -303,7 +303,7 @@ export class HerdService {
         born_at_farm: options.born_at_farm,
         collar_code: options.collar,
         earring: options.earring,
-        is_female: options.is_female,
+        is_female: options.is_female !== undefined ? options.is_female : true,
         last_delivery: options.last_delivery,
         last_insemination: getRequestFormatedDate(options.last_service),
         last_insemination_method: getInseminationMethod(options.last_service_method),

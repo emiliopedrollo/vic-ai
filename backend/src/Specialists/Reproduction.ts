@@ -150,8 +150,7 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
           },
           timestamp: {
             type: "string",
-            format: "ISO_8601 with timezone",
-            description: "The date and time of the insemination"
+            description: "ISO_8601 date and time of the insemination"
           },
           semen_type: {
             type: "string",
@@ -175,8 +174,7 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
           },
           timestamp: {
             type: "string",
-            format: "ISO_8601 with timezone",
-            description: "The date and time of the insemination"
+            description: "ISO_8601 date and time of the insemination"
           },
           donor: {
             type: "string",
@@ -204,8 +202,7 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
           },
           timestamp: {
             type: "string",
-            format: "ISO_8601 with timezone",
-            description: "The date and time of the insemination"
+            description: "ISO_8601 date and time of the insemination"
           },
           comment: {
             type: "string",

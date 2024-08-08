@@ -122,7 +122,7 @@ export abstract class Specialist implements SpecialistInterface {
       .entries(this.tools ??= this.getDefinedTools())
       .map(([name, def]) => ({
         type: def.definition.type,
-        function: { name, ...def.definition.function }
+        function: { name, strict: false, ...def.definition.function }
       }))
   }
 

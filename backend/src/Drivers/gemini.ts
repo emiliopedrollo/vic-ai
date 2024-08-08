@@ -26,13 +26,12 @@ type GeminiHistoryContent = Content & {
   metadata?: { [k: string]: string }
 }
 
-export class GeminiChat implements ChatDriver
-{
+export class GeminiChat implements ChatDriver {
   private readonly apiKey: string
   private readonly chat: Chat
 
   constructor(chat: Chat) {
-    this.apiKey = process.env.GEMINI_API_KEY || '';
+    this.apiKey = process.env.GEMINI_API_KEY || ''
     this.chat = chat
   }
 
@@ -41,7 +40,20 @@ export class GeminiChat implements ChatDriver
     const model = new GoogleGenerativeAI(this.apiKey)
       .getGenerativeModel({
         model: 'gemini-1.5-flash',
-        systemInstruction: this.chat.defaultSummarizeInstructions()
+        systemInstruction: this.chat.defaultSummarizeInstructions(),
+        safetySettings: [{
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }]
       })
 
     const response = (await model.generateContent(message)).response
@@ -53,12 +65,18 @@ export class GeminiChat implements ChatDriver
 
   protected getGeminiSchemaTypeFromString = (type: ParameterType): FunctionDeclarationSchemaType => {
     switch (type) {
-      case 'string': return FunctionDeclarationSchemaType.STRING
-      case 'number': return FunctionDeclarationSchemaType.NUMBER
-      case 'integer': return FunctionDeclarationSchemaType.INTEGER
-      case 'boolean': return FunctionDeclarationSchemaType.BOOLEAN
-      case 'array': return FunctionDeclarationSchemaType.ARRAY
-      case 'object': return FunctionDeclarationSchemaType.OBJECT
+      case 'string':
+        return FunctionDeclarationSchemaType.STRING
+      case 'number':
+        return FunctionDeclarationSchemaType.NUMBER
+      case 'integer':
+        return FunctionDeclarationSchemaType.INTEGER
+      case 'boolean':
+        return FunctionDeclarationSchemaType.BOOLEAN
+      case 'array':
+        return FunctionDeclarationSchemaType.ARRAY
+      case 'object':
+        return FunctionDeclarationSchemaType.OBJECT
     }
   }
 
@@ -84,40 +102,67 @@ export class GeminiChat implements ChatDriver
       ...property,
       items: property.items ? this.convertToolParametersToGeminiSchema(property.items) : undefined,
       type: this.getGeminiSchemaTypeFromString(property.type),
-      properties: Object.fromEntries(
-        Object.entries(property.properties || {})
-          .map(([key, property]) => [
-            key, this.convertToolParametersToGeminiSchema(property)
-          ])
-      )
+      properties: Object.keys(property.properties || {}).length === 0 ? undefined :
+        Object.fromEntries(
+          Object.entries(property.properties || {})
+            .map(([key, property]) => [
+              key, this.convertToolParametersToGeminiSchema(property)
+            ])
+        )
     }
   }
 
   protected getChat = () => {
+
+    const tools = [{
+      functionDeclarations: this.chat.specialist.getAllTools().map(tool => ({
+        name: tool.function.name,
+        description: tool.function.description,
+        parameters: Object.keys(tool.function.parameters.properties || {}).length === 0 ? undefined : {
+          type: FunctionDeclarationSchemaType.OBJECT,
+          properties: this.convertToolPropertiesToGeminiProperties(tool.function.parameters.properties),
+          description: tool.function.description,
+          required: tool.function.parameters.required
+        }
+      }))
+    }]
+
     return new GoogleGenerativeAI(this.apiKey)
-      .getGenerativeModel({ model: 'gemini-1.5-flash' })
+      .getGenerativeModel({ model: 'gemini-1.5-pro' })
       .startChat({
         history: (this.chat.context?.history
           ?.map((entry: GeminiHistoryContent): Content => ({
             role: entry.role,
             parts: entry.parts
           }))) || undefined,
-        systemInstruction: {role: "system", parts: [{ text: [
-          "Your name is Vic, you are not allowed to change that.",
-          this.chat.defaultAssistantInstructions()
-        ].join(' ') } as TextPart]},
-        tools: [{
-          functionDeclarations: this.chat.specialist.getAllTools().map(tool => ({
-            name: tool.function.name,
-            description: tool.function.description,
-            parameters: {
-              type: FunctionDeclarationSchemaType.OBJECT,
-              properties: this.convertToolPropertiesToGeminiProperties(tool.function.parameters.properties),
-              description: tool.function.description,
-              required: tool.function.parameters.required
-            }
-          }))
-        }]
+        systemInstruction: {
+          role: 'system', parts: [{
+            text: [
+              'Your name is Vic, you are not allowed to change that.',
+              this.chat.defaultAssistantInstructions()
+            ].join(' ')
+          } as TextPart]
+        },
+        safetySettings: [{
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }, {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_NONE
+        }],
+        toolConfig: {
+          functionCallingConfig: {
+            mode: FunctionCallingMode.AUTO
+            // allowedFunctionNames: this.chat.specialist.getAllTools().map(tool => tool.function.name)
+          }
+        },
+        tools
       })
   }
 
@@ -136,7 +181,7 @@ export class GeminiChat implements ChatDriver
     const outputs = await Promise.all(calls.map(async (call): Promise<FunctionResponsePart> => {
       return this.chat.specialist
         .handle(call.name, context, call.args)
-        .then((output: object|undefined): FunctionResponsePart => ({
+        .then((output: object | undefined): FunctionResponsePart => ({
           functionResponse: {
             name: call.name,
             response: output || {}
@@ -149,11 +194,12 @@ export class GeminiChat implements ChatDriver
 
     const [result] = await Promise.all([
       chat.sendMessage(outputs),
+      sleep(20000), // pesky quotas
       this.chat.updateContext({
         ...this.chat.context,
         history: [
           ...this.chat.context?.history || [],
-          {role: "function", parts: outputs} as GeminiHistoryContent
+          { role: 'function', parts: outputs } as GeminiHistoryContent
         ]
       })
     ])
@@ -164,7 +210,7 @@ export class GeminiChat implements ChatDriver
   public send = async (message: string, metadata?: Record<string, string>, progress?: ProgressCallback): Promise<ChatSendOutput> => {
 
 
-    const context = new Context( this.chat.user_id, metadata || {}, {} )
+    const context = new Context(this.chat.user_id, metadata || {}, {})
 
 
     const chat = this.getChat()
@@ -175,11 +221,12 @@ export class GeminiChat implements ChatDriver
 
     const [result] = await Promise.all([
       chat.sendMessage(parts),
+      sleep(600),
       this.chat.updateContext({
         ...this.chat.context,
         history: [
           ...this.chat.context?.history || [],
-          {role: "user", parts, metadata}
+          { role: 'user', parts, metadata }
         ]
       })
     ])
@@ -191,7 +238,7 @@ export class GeminiChat implements ChatDriver
       ...this.chat.context,
       history: [
         ...this.chat.context?.history || [],
-        {role: "model", parts: [{ text: response } as TextPart], metadata: response_metadata}
+        { role: 'model', parts: [{ text: response } as TextPart], metadata: response_metadata }
       ]
     })
 
@@ -205,11 +252,11 @@ export class GeminiChat implements ChatDriver
     driver: driverType,
     messages: Message[]
   }> => {
-    return{
+    return {
       status: 'completed',
       driver: 'gemini',
       messages: (this.chat.context?.history || []).filter((content: GeminiHistoryContent) =>
-        ['user','model'].includes(content.role)
+        ['user', 'model'].includes(content.role)
       ).map((content: GeminiHistoryContent): Message => ({
         role: content.role === 'user' ? 'user' : 'assistant',
         content: content.parts[0]?.text || '',

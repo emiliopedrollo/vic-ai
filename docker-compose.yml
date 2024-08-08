@@ -13,6 +13,7 @@ services:
       COWMED_API_URL: '${COWMED_API_URL}'
       LLM_BACKEND: '${LLM_BACKEND}'
       DYNAMODB_ENDPOINT: '${DYNAMODB_ENDPOINT:-http://dynamodb:8000}'
+      OPENAI_VECTOR_STORE_IDS: '${OPENAI_VECTOR_STORE_IDS}'
       YARN_VERSION: '4.1.1'
       AXIOS_CA: '/ca.crt'
       PORT: '3001'
