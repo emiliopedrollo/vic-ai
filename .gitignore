@@ -17,6 +17,7 @@ coverage
 *.local
 .pnp.loader.mjs
 .pnp.cjs
+dev-dist
 
 /cypress/videos/
 /cypress/screenshots/
