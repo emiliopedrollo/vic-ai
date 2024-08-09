@@ -57,7 +57,7 @@ const action_map: Record<string, string> = {
     }">
     <div>
       <div v-for="action in actions" :key="action" class="flex justify-start">
-        <div class="ms-[10px] mb-4">{{ action_map[action] }}.</div>
+        <div v-if="action !== 'file_search'" class="ms-[10px] mb-4">{{ action_map[action] }}.</div>
       </div>
     </div>
     <div v-if="!!content" class="flex">

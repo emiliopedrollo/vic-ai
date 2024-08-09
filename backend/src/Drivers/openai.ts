@@ -63,7 +63,7 @@ export class OpenAiChat implements ChatDriver {
 
     const assistantDefinition: AssistantUpdateParams = {
       name: 'Vic',
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o',
       instructions: this.chat.defaultAssistantInstructions(),
       tools: [
         ...(this.chat.specialist.getAllTools()),

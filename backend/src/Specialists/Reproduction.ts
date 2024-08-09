@@ -109,7 +109,7 @@ export class Reproduction extends Specialist implements GlossarySpecialist{
   defineTools = (): ToolsDefinition => ({
     list_animals_in_heat: {
       definition: this.buildDefinition({
-        description: "List animals currently in heat",
+        description: "List data from animals currently with confirmed heat or in need of heat confirmation",
         properties: { page: { type: "number" } }
       }),
       handler: async (options: HandlerOptions) => {
